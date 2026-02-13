@@ -81,9 +81,9 @@
 
           <div class="row">
             <div class="field" style="flex:1; min-width: 160px;">
-              <label>Amount (halalas)</label>
+              <label>Amount</label>
               <input id="amount" type="number" min="1" step="1" />
-              <div class="hint" style="margin-top:6px;">1000 = 10.00 SAR</div>
+              <div class="hint" style="margin-top:6px;">100 = 1.00 SAR</div>
             </div>
 
             <div class="field" style="flex:1; min-width: 140px;">
@@ -105,19 +105,18 @@
               <label class="toggle" style="flex:1;">
                 <input id="mApplePay" type="checkbox" />
                 <div>
-                  <b>Apple Pay</b><br /><span>method: applepay</span>
+                  <b>Apple Pay</b><br />
                 </div>
               </label>
 
               <label class="toggle" style="flex:1;">
                 <input id="mCard" type="checkbox" />
                 <div>
-                  <b>Credit Card</b><br /><span>method: creditcard</span>
+                  <b>Credit Card</b><br />
                 </div>
               </label>
             </div>
             <div class="hint" style="margin-top:6px;">
-              Tip: keep creditcard enabled while debugging so you can confirm the widget renders.
             </div>
           </div>
 
@@ -127,21 +126,21 @@
             <div class="row" style="margin-top:10px;">
               <label class="toggle" style="flex:1;">
                 <input class="net" type="checkbox" value="mada" />
-                <div><b>mada</b><br /><span>recommended for KSA</span></div>
+                <div><b>mada</b><br /></div>
               </label>
               <label class="toggle" style="flex:1;">
                 <input class="net" type="checkbox" value="visa" />
-                <div><b>visa</b><br /><span>supported</span></div>
+                <div><b>visa</b><br /></div>
               </label>
             </div>
             <div class="row" style="margin-top:10px;">
               <label class="toggle" style="flex:1;">
                 <input class="net" type="checkbox" value="mastercard" />
-                <div><b>mastercard</b><br /><span>supported</span></div>
+                <div><b>mastercard</b><br /></div>
               </label>
               <label class="toggle" style="flex:1;">
                 <input class="net" type="checkbox" value="amex" />
-                <div><b>amex</b><br /><span>supported</span></div>
+                <div><b>amex</b><br /></div>
               </label>
             </div>
           </div>
@@ -257,7 +256,7 @@
             <label>Proxy Base URL</label>
             <input id="proxyBase" type="text" placeholder="https://api.ramiadam.com" />
             <div class="hint" style="margin-top:6px;">
-              Saved locally. Do not put secret keys in GitHub Pages.
+              Saved locally. Do not put secret keys in public.
             </div>
           </div>
 
@@ -277,7 +276,7 @@
 
           <div class="row">
             <div class="field" style="flex:1; min-width: 180px;">
-              <label>Admin Amount (halalas)</label>
+              <label>Admin Amount</label>
               <input id="adminAmount" type="number" min="1" step="1" />
               <div class="hint" style="margin-top:6px;">Used for capture/refund/token payment.</div>
             </div>
@@ -379,11 +378,14 @@
           description: "Apple Pay Reccuring",
           methods: { applepay: true, creditcard: true },
           networks: ["mada", "visa", "mastercard", "amex"],
+          // ✅ global save_card default
+          save_card: true,
           apple_pay: {
             country: "SA",
             label: "Rami",
             validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
             manual: true,
+            // kept for backward compatibility with your stored configs
             save_card: true,
           },
           metadata: { scenario: "applepay_manual", tester: "rami" },
@@ -460,11 +462,16 @@
           methods,
           supported_networks: networks,
           manual: manual.checked,
+
+          // ✅ GLOBAL save_card (applies to applepay + creditcard)
+          save_card: saveCard.checked,
+
           apple_pay: {
             country: apCountry.value,
             label: apLabel.value.trim() || "Rami",
             validate_merchant_url: DEFAULT_VALIDATE_URL,
             manual: manual.checked,
+            // kept for compatibility; driven by global toggle
             save_card: saveCard.checked,
           },
           metadata: buildMetadata(),
@@ -481,7 +488,10 @@
         mCard.checked = cfg.methods?.includes("creditcard") ?? true;
 
         manual.checked = !!cfg.manual;
-        saveCard.checked = !!cfg.apple_pay?.save_card;
+
+        // ✅ use global save_card if exists, else fallback to apple_pay.save_card
+        const sc = (typeof cfg.save_card === "boolean") ? cfg.save_card : !!cfg.apple_pay?.save_card;
+        saveCard.checked = sc;
 
         apCountry.value = cfg.apple_pay?.country || "SA";
         apLabel.value = cfg.apple_pay?.label || "Rami";
@@ -529,6 +539,10 @@
           return;
         }
 
+        // ✅ normalize save_card (supports old saved configs)
+        const globalSaveCard =
+          (typeof cfg.save_card === "boolean") ? cfg.save_card : !!cfg.apple_pay?.save_card;
+
         // MPF 2.2.6 requires promise-based on_completed
         Moyasar.init({
           element: "#formMount",
@@ -542,12 +556,18 @@
           manual: cfg.manual,
           supported_networks: cfg.supported_networks,
 
+          // ✅ Apply save_card to ALL methods (credit card + apple pay)
+          credit_card: {
+            save_card: globalSaveCard,
+            manual: cfg.manual,
+          },
+
           apple_pay: {
             country: cfg.apple_pay.country,
             label: cfg.apple_pay.label,
             validate_merchant_url: cfg.apple_pay.validate_merchant_url,
             manual: cfg.apple_pay.manual,
-            save_card: cfg.apple_pay.save_card,
+            save_card: globalSaveCard,
           },
 
           metadata: cfg.metadata,
@@ -745,6 +765,13 @@
           manual: true,
           save_card: true,
         };
+
+        // ✅ if old saved config only had apple_pay.save_card, promote it
+        if (typeof cfg.save_card !== "boolean") {
+          cfg.save_card = !!cfg.apple_pay?.save_card;
+        }
+        // keep both aligned
+        cfg.apple_pay.save_card = cfg.save_card;
 
         applyConfigToUI(cfg);
         writeSavedState(collectConfigFromUI()); // ensure consistent stored shape
