@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Moyasar Apple Pay (GitHub Pages Test)</title>
+
+    <!-- Moyasar Payment Form assets -->
+    <link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.7.3/moyasar.css" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=fetch"></script>
+    <script src="https://cdn.moyasar.com/mpf/1.7.3/moyasar.js"></script>
+
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; }
+      .wrap { max-width: 420px; margin: 0 auto; }
+      pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow:auto; }
+      .hint { font-size: 13px; opacity: 0.8; }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <h2>Moyasar Apple Pay Test</h2>
+      <p class="hint">
+        Open this page in <b>Safari</b> on a real Apple device with Apple Pay set up.
+      </p>
+
+      <div class="mysr-form"></div>
+
+      <h3>Result (on_completed)</h3>
+      <pre id="result">Waiting…</pre>
+    </div>
+
+    <script>
+      const resultEl = document.getElementById("result");
+
+      // Change this to your GitHub Pages "thanks.html"
+      const callbackUrl = new URL("thanks.html", window.location.href).toString();
+
+      Moyasar.init({
+        element: ".mysr-form",
+        amount: 5000, // 10.00 SAR (amount is in halalas) :contentReference[oaicite:4]{index=4}
+        currency: "SAR",
+        description: "Apple Pay Test - GitHub Pages",
+        publishable_api_key: "pk_live_x7yDncyvViCw8yG3VpwMT7DhpdSWqUnTiWTdyjr8",
+        callback_url: callbackUrl,
+        methods: ["applepay"],
+
+        apple_pay: {
+          country: "SA",
+          label: "Rami",
+          validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
+        },
+
+        on_completed: function (payment) {
+          // This is the easiest way to "grab what happened"
+          // Moyasar recommends saving the payment ID. :contentReference[oaicite:5]{index=5}
+          resultEl.textContent = JSON.stringify(payment, null, 2);
+
+          // Optional: POST payment.id to your backend for verification/logging
+          // fetch("https://your-backend.example.com/save-payment", {
+          //   method: "POST",
+          //   headers: { "Content-Type": "application/json" },
+          //   body: JSON.stringify({ id: payment.id }),
+          // });
+        },
+
+        on_failure: function (error) {
+          resultEl.textContent = "FAILED:\n" + (typeof error === "string" ? error : JSON.stringify(error, null, 2));
+        },
+      });
+    </script>
+  </body>
+</html>
