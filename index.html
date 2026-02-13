@@ -6,9 +6,9 @@
     <title>Moyasar Apple Pay (GitHub Pages Test)</title>
 
     <!-- Moyasar Payment Form assets -->
-    <link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.7.3/moyasar.css" />
+    <link rel="stylesheet" href="https://cdn.moyasar.com/mpf/2.2.6/moyasar.css" />
     <script src="https://polyfill.io/v3/polyfill.min.js?features=fetch"></script>
-    <script src="https://cdn.moyasar.com/mpf/1.7.3/moyasar.js"></script>
+    <script src="https://cdn.moyasar.com/mpf/2.2.6/moyasar.js"></script>
 
     <style>
       body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; }
@@ -49,6 +49,8 @@
         apple_pay: {
           country: "SA",
           label: "Rami",
+          manual: true,
+          save_card: true,
           validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
         },
 
