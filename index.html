@@ -117,38 +117,29 @@
           save_card: true,  // tokenize (requires tokenization enabled on your Moyasar account)
         },
 
-        on_completed: function (payment) {
-          resultEl.textContent = JSON.stringify(payment, null, 2);
+ on_completed: async function (payment) {
+    // do your normal logic
+    resultEl.textContent = JSON.stringify(payment, null, 2);
 
-          // Save useful fields
-          if (payment && payment.id) {
-            localStorage.setItem("moyasar_last_payment_id", payment.id);
-          }
+    const token = payment?.source?.token;
+    localStorage.setItem("moyasar_last_payment_id", payment?.id || "");
+    localStorage.setItem("moyasar_last_source", JSON.stringify(payment?.source || null));
 
-          // Always store payment.source for debugging / reuse
-          localStorage.setItem("moyasar_last_source", JSON.stringify(payment?.source || null));
+    if (token) {
+      localStorage.setItem("moyasar_last_token", token);
+      tokenLineEl.innerHTML = `<code>${token}</code>`;
+    } else {
+      tokenLineEl.textContent =
+        "No token returned. Saved source to localStorage (moyasar_last_source).";
+    }
 
-          // Token (if returned)
-          const token = payment?.source?.token;
-          if (token) {
-            localStorage.setItem("moyasar_last_token", token);
-          }
+    // IMPORTANT for v2.2.6: return a Promise (async does this automatically)
+    return payment;
+  },
 
-          showSaved();
-
-          if (!token) {
-            // not an error; token may be absent if tokenization isn't enabled/returned
-            resultEl.textContent =
-              resultEl.textContent +
-              "\n\n⚠️ No token returned on payment.source.token. Saved payment.source to localStorage (moyasar_last_source).";
-          }
-        },
-
-        on_failure: function (error) {
-          resultEl.textContent =
-            "FAILED:\n" + (typeof error === "string" ? error : JSON.stringify(error, null, 2));
-        },
-      });
-    </script>
-  </body>
-</html>
+  on_failure: async function (error) {
+    resultEl.textContent =
+      "FAILED:\n" + (typeof error === "string" ? error : JSON.stringify(error, null, 2));
+    return error;
+  },
+});
