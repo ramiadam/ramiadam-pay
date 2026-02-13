@@ -3,133 +3,556 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Moyasar Apple Pay Test (2.2.6)</title>
+    <title>Moyasar Apple Pay Test Harness (MPF 2.2.6)</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.2.6/dist/moyasar.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.2.6/dist/moyasar.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.2.6/dist/moyasar.umd.min.js"></script>
 
     <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; }
-      .wrap { max-width: 640px; margin: 0 auto; }
-      pre { background: #f6f8fa; padding: 12px; border-radius: 10px; overflow:auto; }
-      .box { margin-top: 12px; padding: 12px; border-radius: 10px; background: #f6f8fa; }
+      :root { --bg:#0b0f19; --card:#121a2a; --muted:#9aa4b2; --text:#e6eaf0; --line:#22304a; --chip:#1a2640; --ok:#16a34a; --bad:#ef4444; }
+      body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--text); }
+      .wrap { max-width: 1050px; margin: 0 auto; padding: 20px; }
+      h1 { margin: 4px 0 14px; font-size: 22px; }
+      .sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+      .grid { display:grid; grid-template-columns: 420px 1fr; gap:16px; align-items:start; }
+      @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
+      .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+      .card h2 { font-size: 14px; margin: 0 0 10px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+      .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+      .sp { height: 10px; }
+      label { font-size: 12px; color: var(--muted); display:block; margin-bottom: 6px; }
+      input[type="text"], input[type="number"], select, textarea {
+        width: 100%; box-sizing:border-box;
+        background:#0f172a; color:var(--text);
+        border:1px solid var(--line); border-radius: 12px;
+        padding: 10px 10px; outline:none;
+      }
+      textarea { min-height: 70px; resize: vertical; }
+      input[type="checkbox"] { transform: scale(1.05); }
+      .field { margin-bottom: 12px; }
+      .toggle { display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--line); border-radius:14px; background:#0f172a; }
+      .toggle b { font-size: 13px; }
+      .toggle span { color: var(--muted); font-size: 12px; }
+      .btn {
+        border:1px solid var(--line); background:#0f172a; color:var(--text);
+        padding: 10px 12px; border-radius: 12px; cursor:pointer;
+      }
+      .btn.primary { background:#1b2a4a; }
+      .btn:active { transform: translateY(1px); }
+      .chips { display:flex; flex-wrap:wrap; gap:8px; }
+      .chip { background: var(--chip); border:1px solid var(--line); border-radius: 999px; padding: 7px 10px; font-size: 12px; }
+      .hint { color: var(--muted); font-size: 12px; line-height: 1.35; }
+      pre { margin:0; background:#0a1020; border:1px solid var(--line); border-radius: 16px; padding: 12px; overflow:auto; }
       code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-      button { padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
-      button:active { transform: translateY(1px); }
+      .status { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+      .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; border:1px solid var(--line); background:#0f172a; }
+      .pill.ok { border-color: rgba(22,163,74,.4); color: #86efac; }
+      .pill.bad { border-color: rgba(239,68,68,.4); color: #fca5a5; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
     </style>
   </head>
 
   <body>
     <div class="wrap">
-      <h1>Moyasar Apple Pay Test</h1>
-
-      <div class="box">
-        <button id="resetBtn" type="button">Reset + Re-init</button>
-        <button id="clearBtn" type="button">Clear saved</button>
-        <div style="margin-top:10px;">
-          <b>Last payment id:</b> <span id="pid"><i>None</i></span><br/>
-          <b>Token:</b> <span id="token"><i>None</i></span>
-        </div>
+      <h1>Moyasar Apple Pay Test Harness</h1>
+      <div class="sub">
+        UI controls to test different scenarios without editing code.
+        Works with MPF <b>2.2.6</b> (async callbacks required).
       </div>
 
-      <h3>Form</h3>
-      <div id="formMount"></div>
+      <div class="grid">
+        <!-- Controls -->
+        <div class="card">
+          <h2>Configuration</h2>
 
-      <h3>Log</h3>
-      <pre id="log">Ready.</pre>
+          <div class="field">
+            <label>Publishable key</label>
+            <input id="pk" type="text" placeholder="pk_live_x7yDncyvViCw8yG3VpwMT7DhpdSWqUnTiWTdyjr8" />
+            <div class="hint" style="margin-top:6px;">Saved locally in your browser. (No secret keys here.)</div>
+          </div>
+
+          <div class="row">
+            <div class="field" style="flex:1; min-width: 160px;">
+              <label>Amount (halalas)</label>
+              <input id="amount" type="number" min="1" step="1" />
+              <div class="hint" style="margin-top:6px;">1000 = 10.00 SAR</div>
+            </div>
+
+            <div class="field" style="flex:1; min-width: 140px;">
+              <label>Currency</label>
+              <select id="currency">
+                <option value="SAR">SAR</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Description</label>
+            <input id="desc" type="text" placeholder="Apple Pay Test" />
+          </div>
+
+          <div class="field">
+            <label>Methods</label>
+            <div class="row">
+              <label class="toggle" style="flex:1;">
+                <input id="mApplePay" type="checkbox" />
+                <div>
+                  <b>Apple Pay</b><br /><span>method: applepay</span>
+                </div>
+              </label>
+
+              <label class="toggle" style="flex:1;">
+                <input id="mCard" type="checkbox" />
+                <div>
+                  <b>Credit Card</b><br /><span>method: creditcard</span>
+                </div>
+              </label>
+            </div>
+            <div class="hint" style="margin-top:6px;">
+              Tip: keep creditcard enabled while debugging so you can confirm the widget renders.
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Supported Networks</label>
+            <div class="chips" id="netChips"></div>
+            <div class="row" style="margin-top:10px;">
+              <label class="toggle" style="flex:1;">
+                <input class="net" type="checkbox" value="mada" />
+                <div><b>mada</b><br /><span>recommended for KSA</span></div>
+              </label>
+              <label class="toggle" style="flex:1;">
+                <input class="net" type="checkbox" value="visa" />
+                <div><b>visa</b><br /><span>supported</span></div>
+              </label>
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <label class="toggle" style="flex:1;">
+                <input class="net" type="checkbox" value="mastercard" />
+                <div><b>mastercard</b><br /><span>supported</span></div>
+              </label>
+              <label class="toggle" style="flex:1;">
+                <input class="net" type="checkbox" value="amex" />
+                <div><b>amex</b><br /><span>supported</span></div>
+              </label>
+            </div>
+            <div class="hint" style="margin-top:6px;">
+              We avoid <span class="mono">unionpay</span> because Safari throws “not a valid payment network”.
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Apple Pay</label>
+            <div class="row">
+              <div class="field" style="flex:1; min-width: 140px; margin:0;">
+                <label>Country</label>
+                <select id="apCountry">
+                  <option value="SA">SA</option>
+                </select>
+              </div>
+              <div class="field" style="flex:1; min-width: 160px; margin:0;">
+                <label>Label</label>
+                <input id="apLabel" type="text" placeholder="Rami" />
+              </div>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <label class="toggle" style="flex:1;">
+                <input id="manual" type="checkbox" />
+                <div>
+                  <b>Manual</b><br /><span>authorize only; capture later</span>
+                </div>
+              </label>
+
+              <label class="toggle" style="flex:1;">
+                <input id="saveCard" type="checkbox" />
+                <div>
+                  <b>Save card</b><br /><span>tokenize if enabled</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="field" style="margin-top:10px;">
+              <label>Validate merchant URL</label>
+              <input id="validateUrl" type="text" />
+              <div class="hint" style="margin-top:6px;">
+                Should be: <span class="mono">https://api.moyasar.com/v1/applepay/initiate</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Metadata (2 fields)</label>
+            <div class="row">
+              <div style="flex:1; min-width: 160px;">
+                <label>metadata[key1]</label>
+                <input id="md1k" type="text" placeholder="scenario" />
+              </div>
+              <div style="flex:1; min-width: 200px;">
+                <label>metadata[value1]</label>
+                <input id="md1v" type="text" placeholder="applepay_manual" />
+              </div>
+            </div>
+            <div class="sp"></div>
+            <div class="row">
+              <div style="flex:1; min-width: 160px;">
+                <label>metadata[key2]</label>
+                <input id="md2k" type="text" placeholder="tester" />
+              </div>
+              <div style="flex:1; min-width: 200px;">
+                <label>metadata[value2]</label>
+                <input id="md2v" type="text" placeholder="rami" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 12px;">
+            <button class="btn primary" id="applyBtn" type="button">Apply + Re-init Form</button>
+            <button class="btn" id="clearBtn" type="button">Clear Saved (token/id)</button>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            The form is reinitialized every time you click “Apply”.
+            Values persist in your browser (localStorage) so you can refresh without losing config.
+          </div>
+        </div>
+
+        <!-- Form + Output -->
+        <div class="card">
+          <h2>Runner</h2>
+
+          <div class="status" style="margin-bottom: 10px;">
+            <span class="pill" id="apAvail">ApplePaySession: ?</span>
+            <span class="pill" id="canPay">canMakePayments(): ?</span>
+            <span class="pill" id="lastPid">Last payment id: —</span>
+            <span class="pill" id="lastTok">Token: —</span>
+          </div>
+
+          <div id="formMount"></div>
+
+          <div class="sp"></div>
+
+          <h2>Payment Object (on_completed)</h2>
+          <pre id="result">Waiting…</pre>
+
+          <div class="sp"></div>
+
+          <h2>Saved Source (localStorage)</h2>
+          <pre id="savedSource">—</pre>
+        </div>
+      </div>
     </div>
 
     <script>
-      const PUBLISHABLE_KEY = "pk_live_x7yDncyvViCw8yG3VpwMT7DhpdSWqUnTiWTdyjr8";
-      const callbackUrl = new URL("thanks.html", window.location.href).toString();
+      // ---------- storage keys ----------
+      const K = {
+        cfg: "moyasar_ui_cfg_v1",
+        pid: "moyasar_last_payment_id",
+        tok: "moyasar_last_token",
+        src: "moyasar_last_source",
+      };
 
-      const logEl = document.getElementById("log");
-      const pidEl = document.getElementById("pid");
-      const tokenEl = document.getElementById("token");
-      const formMount = document.getElementById("formMount");
+      // ---------- dom ----------
+      const $ = (id) => document.getElementById(id);
 
-      function log(msg, obj) {
-        logEl.textContent += "\n" + msg + (obj ? "\n" + JSON.stringify(obj, null, 2) : "");
+      const formMount = $("formMount");
+      const resultEl = $("result");
+      const savedSourceEl = $("savedSource");
+      const apAvailEl = $("apAvail");
+      const canPayEl = $("canPay");
+      const lastPidEl = $("lastPid");
+      const lastTokEl = $("lastTok");
+      const netChips = $("netChips");
+
+      // inputs
+      const pk = $("pk");
+      const amount = $("amount");
+      const currency = $("currency");
+      const desc = $("desc");
+      const mApplePay = $("mApplePay");
+      const mCard = $("mCard");
+      const manual = $("manual");
+      const saveCard = $("saveCard");
+      const apCountry = $("apCountry");
+      const apLabel = $("apLabel");
+      const validateUrl = $("validateUrl");
+      const md1k = $("md1k");
+      const md1v = $("md1v");
+      const md2k = $("md2k");
+      const md2v = $("md2v");
+
+      // networks (checkboxes with class net)
+      const netBoxes = Array.from(document.querySelectorAll("input.net"));
+
+      // ---------- helpers ----------
+      function safeJsonParse(s, fallback) {
+        try { return JSON.parse(s); } catch { return fallback; }
       }
-      function showSaved() {
-        const pid = localStorage.getItem("moyasar_last_payment_id");
-        const tok = localStorage.getItem("moyasar_last_token");
-        pidEl.innerHTML = pid ? `<code>${pid}</code>` : "<i>None</i>";
-        tokenEl.innerHTML = tok ? `<code>${tok}</code>` : "<i>None</i>";
-      }
-      function clearSaved() {
-        localStorage.removeItem("moyasar_last_payment_id");
-        localStorage.removeItem("moyasar_last_token");
-        localStorage.removeItem("moyasar_last_source");
-        showSaved();
-        logEl.textContent = "Cleared.";
+
+      function setPill(el, text, ok = null) {
+        el.textContent = text;
+        el.classList.remove("ok", "bad");
+        if (ok === true) el.classList.add("ok");
+        if (ok === false) el.classList.add("bad");
       }
 
-      async function init() {
-        logEl.textContent = "Initializing…";
-
-        if (!window.Moyasar) {
-          logEl.textContent = "❌ Moyasar not loaded";
-          return;
-        }
-
-        // Reset mount to avoid keeping old state in DOM
-        formMount.innerHTML = "";
-
-        Moyasar.init({
-          element: "#formMount",
-          amount: 5000, // 10.00 SAR
+      function readSavedState() {
+        const cfg = safeJsonParse(localStorage.getItem(K.cfg), null);
+        return cfg || {
+          publishable_key: "",
+          amount: 1000,
           currency: "SAR",
           description: "Apple Pay Test",
-          publishable_api_key: PUBLISHABLE_KEY,
-          callback_url: callbackUrl,
-
-          // IMPORTANT: this removes UnionPay from Apple Pay request generation
-          supported_networks: ["mada", "visa", "mastercard"],
-
-          // show CC too so the form always renders (optional)
-          methods: ["applepay", "creditcard"],
-
-          manual: true,
-
+          methods: { applepay: true, creditcard: true },
+          networks: ["mada", "visa", "mastercard", "amex"],
           apple_pay: {
             country: "SA",
             label: "Rami",
             validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
             manual: true,
-            save_card: true
+            save_card: true,
+          },
+          metadata: { scenario: "applepay_manual", tester: "rami" },
+        };
+      }
+
+      function writeSavedState(cfg) {
+        localStorage.setItem(K.cfg, JSON.stringify(cfg));
+      }
+
+      function readLast() {
+        const pid = localStorage.getItem(K.pid);
+        const tok = localStorage.getItem(K.tok);
+        const src = localStorage.getItem(K.src);
+        return { pid, tok, src };
+      }
+
+      function renderChips(networks) {
+        netChips.innerHTML = "";
+        networks.forEach((n) => {
+          const d = document.createElement("div");
+          d.className = "chip";
+          d.textContent = n;
+          netChips.appendChild(d);
+        });
+      }
+
+      function updateSavedPanels() {
+        const { pid, tok, src } = readLast();
+        lastPidEl.textContent = "Last payment id: " + (pid || "—");
+        lastTokEl.textContent = "Token: " + (tok || "—");
+        savedSourceEl.textContent = src ? JSON.stringify(safeJsonParse(src, src), null, 2) : "—";
+      }
+
+      function setApplePayAvailabilityPills() {
+        const has = typeof window.ApplePaySession !== "undefined";
+        setPill(apAvailEl, "ApplePaySession: " + has, has);
+
+        if (has && typeof ApplePaySession.canMakePayments === "function") {
+          try {
+            const can = ApplePaySession.canMakePayments();
+            setPill(canPayEl, "canMakePayments(): " + can, can);
+          } catch (e) {
+            setPill(canPayEl, "canMakePayments(): error", false);
+          }
+        } else {
+          setPill(canPayEl, "canMakePayments(): n/a", null);
+        }
+      }
+
+      function buildMetadata() {
+        const obj = {};
+        const k1 = md1k.value.trim();
+        const v1 = md1v.value.trim();
+        const k2 = md2k.value.trim();
+        const v2 = md2v.value.trim();
+        if (k1) obj[k1] = v1;
+        if (k2) obj[k2] = v2;
+        return obj;
+      }
+
+      function collectConfigFromUI() {
+        const methods = [];
+        if (mApplePay.checked) methods.push("applepay");
+        if (mCard.checked) methods.push("creditcard");
+
+        const networks = netBoxes.filter(b => b.checked).map(b => b.value);
+
+        return {
+          publishable_key: pk.value.trim(),
+          amount: Math.max(1, parseInt(amount.value || "1000", 10)),
+          currency: currency.value,
+          description: desc.value.trim() || "Apple Pay Test",
+          methods,
+          supported_networks: networks,
+          manual: manual.checked,
+          apple_pay: {
+            country: apCountry.value,
+            label: apLabel.value.trim() || "Rami",
+            validate_merchant_url: validateUrl.value.trim(),
+            manual: manual.checked,
+            save_card: saveCard.checked,
+          },
+          metadata: buildMetadata(),
+        };
+      }
+
+      function applyConfigToUI(cfg) {
+        pk.value = cfg.publishable_key || "";
+        amount.value = cfg.amount ?? 1000;
+        currency.value = cfg.currency || "SAR";
+        desc.value = cfg.description || "Apple Pay Test";
+
+        mApplePay.checked = cfg.methods?.includes("applepay") ?? true;
+        mCard.checked = cfg.methods?.includes("creditcard") ?? true;
+
+        manual.checked = !!cfg.manual;
+        saveCard.checked = !!cfg.apple_pay?.save_card;
+
+        apCountry.value = cfg.apple_pay?.country || "SA";
+        apLabel.value = cfg.apple_pay?.label || "Rami";
+        validateUrl.value = cfg.apple_pay?.validate_merchant_url || "https://api.moyasar.com/v1/applepay/initiate";
+
+        const networks = cfg.supported_networks || ["mada", "visa", "mastercard", "amex"];
+        netBoxes.forEach(b => b.checked = networks.includes(b.value));
+        renderChips(networks);
+
+        const md = cfg.metadata || {};
+        const mdKeys = Object.keys(md);
+        md1k.value = mdKeys[0] || "scenario";
+        md1v.value = md[md1k.value] ?? (mdKeys[0] ? md[mdKeys[0]] : "applepay_manual");
+        md2k.value = mdKeys[1] || "tester";
+        md2v.value = md[md2k.value] ?? (mdKeys[1] ? md[mdKeys[1]] : "rami");
+      }
+
+      // ---------- init / re-init ----------
+      async function initForm(cfg) {
+        resultEl.textContent = "Waiting…";
+        formMount.innerHTML = ""; // prevents MPF holding prior state in DOM
+        setApplePayAvailabilityPills();
+
+        if (!window.Moyasar) {
+          resultEl.textContent = "❌ Moyasar not loaded. Check CDN/network/content blockers.";
+          return;
+        }
+
+        // Guardrails
+        if (!cfg.publishable_key || !cfg.publishable_key.startsWith("pk_")) {
+          resultEl.textContent = "⚠️ Enter a valid publishable key (pk_...) then click Apply.";
+          return;
+        }
+        if (!cfg.apple_pay?.validate_merchant_url) {
+          resultEl.textContent = "⚠️ validate_merchant_url is required for Apple Pay.";
+          return;
+        }
+        if (!cfg.methods?.length) {
+          resultEl.textContent = "⚠️ Select at least one method (Apple Pay / Credit Card).";
+          return;
+        }
+        if (!cfg.supported_networks?.length) {
+          resultEl.textContent = "⚠️ Select at least one supported network.";
+          return;
+        }
+
+        // MPF 2.2.6 requires promise-based on_completed
+        Moyasar.init({
+          element: "#formMount",
+          amount: cfg.amount,
+          currency: cfg.currency,
+          description: cfg.description,
+          publishable_api_key: cfg.publishable_key,
+          callback_url: new URL("thanks.html", window.location.href).toString(),
+          methods: cfg.methods,
+
+          manual: cfg.manual,
+          supported_networks: cfg.supported_networks,
+
+          apple_pay: {
+            country: cfg.apple_pay.country,
+            label: cfg.apple_pay.label,
+            validate_merchant_url: cfg.apple_pay.validate_merchant_url,
+            manual: cfg.apple_pay.manual,
+            save_card: cfg.apple_pay.save_card,
           },
 
-          // MPF 2.2.6 requires promise-based callbacks
-          on_completed: async function (payment) {
-            log("✅ on_completed", payment);
+          metadata: cfg.metadata,
 
-            if (payment?.id) localStorage.setItem("moyasar_last_payment_id", payment.id);
+          on_completed: async function (payment) {
+            resultEl.textContent = JSON.stringify(payment, null, 2);
+
+            if (payment?.id) localStorage.setItem(K.pid, payment.id);
+            localStorage.setItem(K.src, JSON.stringify(payment?.source || null));
 
             const token = payment?.source?.token;
-            if (token) localStorage.setItem("moyasar_last_token", token);
-            else localStorage.removeItem("moyasar_last_token");
+            if (token) localStorage.setItem(K.tok, token);
+            else localStorage.removeItem(K.tok);
 
-            localStorage.setItem("moyasar_last_source", JSON.stringify(payment?.source || null));
-
-            showSaved();
+            updateSavedPanels();
             return payment;
           },
 
           on_failure: async function (error) {
-            log("❌ on_failure", error);
+            resultEl.textContent =
+              "FAILED:\n" + (typeof error === "string" ? error : JSON.stringify(error, null, 2));
             return error;
-          }
+          },
         });
 
-        logEl.textContent = "✅ Form rendered. Try Apple Pay again.";
+        updateSavedPanels();
       }
 
-      document.getElementById("resetBtn").addEventListener("click", init);
-      document.getElementById("clearBtn").addEventListener("click", clearSaved);
+      // ---------- events ----------
+      $("applyBtn").addEventListener("click", async () => {
+        const cfg = collectConfigFromUI();
+        writeSavedState(cfg);
+        renderChips(cfg.supported_networks);
+        await initForm(cfg);
+      });
 
-      showSaved();
-      init();
+      $("clearBtn").addEventListener("click", () => {
+        localStorage.removeItem(K.pid);
+        localStorage.removeItem(K.tok);
+        localStorage.removeItem(K.src);
+        updateSavedPanels();
+        resultEl.textContent = "Cleared saved payment id/token/source.";
+      });
+
+      // live chip updates when toggling networks
+      netBoxes.forEach(b => b.addEventListener("change", () => {
+        const nets = netBoxes.filter(x => x.checked).map(x => x.value);
+        renderChips(nets);
+      }));
+
+      // ---------- boot ----------
+      (async () => {
+        const cfg = readSavedState();
+
+        // normalize to the UI-friendly shape
+        // (older saved configs might differ)
+        cfg.methods = cfg.methods || (cfg.methods?.applepay ? ["applepay"] : ["creditcard"]);
+        if (cfg.methods?.applepay || cfg.methods?.creditcard) {
+          // if someone saved as object by mistake, coerce
+          cfg.methods = [];
+          if (cfg.methods.applepay) cfg.methods.push("applepay");
+          if (cfg.methods.creditcard) cfg.methods.push("creditcard");
+        }
+        cfg.supported_networks = cfg.supported_networks || ["mada", "visa", "mastercard", "amex"];
+        cfg.apple_pay = cfg.apple_pay || {
+          country: "SA",
+          label: "Rami",
+          validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
+          manual: true,
+          save_card: true,
+        };
+
+        applyConfigToUI(cfg);
+        writeSavedState(collectConfigFromUI()); // ensure consistent stored shape
+        updateSavedPanels();
+        await initForm(collectConfigFromUI());
+      })();
     </script>
   </body>
 </html>
