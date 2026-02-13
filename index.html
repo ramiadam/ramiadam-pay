@@ -139,9 +139,6 @@
                 <div><b>amex</b><br /><span>supported</span></div>
               </label>
             </div>
-            <div class="hint" style="margin-top:6px;">
-              We avoid <span class="mono">unionpay</span> because Safari throws “not a valid payment network”.
-            </div>
           </div>
 
           <div class="field">
@@ -185,26 +182,26 @@
           </div>
 
           <div class="field">
-            <label>Metadata (2 fields)</label>
+            <label>Metadata</label>
             <div class="row">
               <div style="flex:1; min-width: 160px;">
-                <label>metadata[key1]</label>
-                <input id="md1k" type="text" placeholder="scenario" />
+                <label>Key</label>
+                <input id="md1k" type="text" placeholder="order_id" />
               </div>
               <div style="flex:1; min-width: 200px;">
-                <label>metadata[value1]</label>
-                <input id="md1v" type="text" placeholder="applepay_manual" />
+                <label>Value</label>
+                <input id="md1v" type="text" placeholder="1995" />
               </div>
             </div>
             <div class="sp"></div>
             <div class="row">
               <div style="flex:1; min-width: 160px;">
-                <label>metadata[key2]</label>
-                <input id="md2k" type="text" placeholder="tester" />
+                <label>Key</label>
+                <input id="md2k" type="text" placeholder="testing" />
               </div>
               <div style="flex:1; min-width: 200px;">
-                <label>metadata[value2]</label>
-                <input id="md2v" type="text" placeholder="rami" />
+                <label>Value</label>
+                <input id="md2v" type="text" placeholder="Token+Reccuring" />
               </div>
             </div>
           </div>
@@ -242,6 +239,64 @@
 
           <h2>Saved Source (localStorage)</h2>
           <pre id="savedSource">—</pre>
+
+          <!-- ✅ NEW: Admin Panel (no design changes; uses same classes) -->
+          <div class="sp"></div>
+
+          <h2>Admin Actions (via Proxy)</h2>
+          <div class="hint" style="margin-bottom:10px;">
+            Capture / Refund / Void and Token payments require <b>secret key</b> → must go through a backend proxy.
+          </div>
+
+          <div class="field">
+            <label>Proxy Base URL (Cloudflare Worker)</label>
+            <input id="proxyBase" type="text" placeholder="https://moyasar-proxy.yourname.workers.dev" />
+            <div class="hint" style="margin-top:6px;">
+              Saved locally. Do not put secret keys in GitHub Pages.
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field" style="flex:1; min-width: 240px;">
+              <label>Payment ID</label>
+              <input id="adminPid" type="text" placeholder="pay_..." />
+              <div class="hint" style="margin-top:6px;">Auto-filled from last payment id.</div>
+            </div>
+
+            <div class="field" style="flex:1; min-width: 240px;">
+              <label>Token</label>
+              <input id="adminToken" type="text" placeholder="token_..." />
+              <div class="hint" style="margin-top:6px;">Auto-filled from last saved source token (if present).</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field" style="flex:1; min-width: 180px;">
+              <label>Admin Amount (halalas)</label>
+              <input id="adminAmount" type="number" min="1" step="1" />
+              <div class="hint" style="margin-top:6px;">Used for capture/refund/token payment.</div>
+            </div>
+
+            <div class="field" style="flex:1; min-width: 180px;">
+              <label>Admin Currency</label>
+              <select id="adminCurrency">
+                <option value="SAR">SAR</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 6px;">
+            <button class="btn" id="btnAdminFetch" type="button">Fetch</button>
+            <button class="btn" id="btnAdminCapture" type="button">Capture</button>
+            <button class="btn" id="btnAdminRefund" type="button">Refund</button>
+            <button class="btn" id="btnAdminVoid" type="button">Void</button>
+            <button class="btn primary" id="btnAdminTokenPay" type="button">Pay using Token</button>
+          </div>
+
+          <div class="sp"></div>
+
+          <h2>Admin Output</h2>
+          <pre id="adminOut">Ready…</pre>
         </div>
       </div>
     </div>
@@ -253,6 +308,9 @@
         pid: "moyasar_last_payment_id",
         tok: "moyasar_last_token",
         src: "moyasar_last_source",
+
+        // ✅ NEW
+        proxy: "moyasar_proxy_base_v1",
       };
 
       // ---------- dom ----------
@@ -284,6 +342,14 @@
       const md2k = $("md2k");
       const md2v = $("md2v");
 
+      // ✅ NEW admin inputs
+      const proxyBaseInput = $("proxyBase");
+      const adminPidInput = $("adminPid");
+      const adminTokenInput = $("adminToken");
+      const adminAmountInput = $("adminAmount");
+      const adminCurrencySel = $("adminCurrency");
+      const adminOut = $("adminOut");
+
       // networks (checkboxes with class net)
       const netBoxes = Array.from(document.querySelectorAll("input.net"));
 
@@ -305,7 +371,7 @@
           publishable_key: "",
           amount: 1000,
           currency: "SAR",
-          description: "Apple Pay Test",
+          description: "Apple Pay Reccuring",
           methods: { applepay: true, creditcard: true },
           networks: ["mada", "visa", "mastercard", "amex"],
           apple_pay: {
@@ -491,6 +557,7 @@
             else localStorage.removeItem(K.tok);
 
             updateSavedPanels();
+            syncAdminDefaults(); // ✅ NEW (safe)
             return payment;
           },
 
@@ -502,6 +569,7 @@
         });
 
         updateSavedPanels();
+        syncAdminDefaults(); // ✅ NEW (safe)
       }
 
       // ---------- events ----------
@@ -517,6 +585,7 @@
         localStorage.removeItem(K.tok);
         localStorage.removeItem(K.src);
         updateSavedPanels();
+        syncAdminDefaults(); // ✅ NEW (safe)
         resultEl.textContent = "Cleared saved payment id/token/source.";
       });
 
@@ -525,6 +594,129 @@
         const nets = netBoxes.filter(x => x.checked).map(x => x.value);
         renderChips(nets);
       }));
+
+      // =========================
+      // ✅ NEW: Admin Panel Logic
+      // =========================
+      function setAdminOut(data) {
+        if (!adminOut) return;
+        adminOut.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+      }
+
+      function getProxyBase() {
+        const v = (proxyBaseInput?.value || "").trim().replace(/\/+$/, "");
+        return v;
+      }
+
+      function loadProxyBase() {
+        const saved = localStorage.getItem(K.proxy);
+        if (saved && proxyBaseInput) proxyBaseInput.value = saved;
+      }
+
+      function saveProxyBase() {
+        const v = getProxyBase();
+        if (v) localStorage.setItem(K.proxy, v);
+      }
+
+      function syncAdminDefaults() {
+        // Fill proxy from storage (if any)
+        loadProxyBase();
+
+        // Fill pid/token from last saved
+        const { pid, tok } = readLast();
+
+        if (adminPidInput && (!adminPidInput.value || adminPidInput.value === "—")) {
+          adminPidInput.value = pid || "";
+        }
+        if (adminTokenInput && (!adminTokenInput.value || adminTokenInput.value === "—")) {
+          adminTokenInput.value = tok || "";
+        }
+
+        // Align amount/currency to current UI values
+        if (adminAmountInput && !adminAmountInput.value) adminAmountInput.value = amount?.value || "1000";
+        if (adminCurrencySel) adminCurrencySel.value = currency?.value || "SAR";
+      }
+
+      async function adminCall(path, { method = "POST", body = null } = {}) {
+        const base = getProxyBase();
+        if (!base || !base.startsWith("http")) {
+          setAdminOut("⚠️ Set Proxy Base URL first (Cloudflare Worker), then try again.");
+          return;
+        }
+
+        setAdminOut("Loading…");
+
+        const res = await fetch(base + path, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+
+        const text = await res.text();
+        try {
+          const json = JSON.parse(text);
+          setAdminOut(json);
+          return json;
+        } catch {
+          setAdminOut(text);
+          return text;
+        }
+      }
+
+      // Wire buttons if present
+      $("btnAdminFetch")?.addEventListener("click", async () => {
+        saveProxyBase();
+        const pid = (adminPidInput?.value || "").trim();
+        if (!pid) return setAdminOut("Enter Payment ID first.");
+        await adminCall(`/payments/${encodeURIComponent(pid)}`, { method: "GET" });
+      });
+
+      $("btnAdminCapture")?.addEventListener("click", async () => {
+        saveProxyBase();
+        const pid = (adminPidInput?.value || "").trim();
+        const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
+        if (!pid) return setAdminOut("Enter Payment ID first.");
+        await adminCall(`/payments/${encodeURIComponent(pid)}/capture`, { method: "POST", body: { amount: amt } });
+      });
+
+      $("btnAdminRefund")?.addEventListener("click", async () => {
+        saveProxyBase();
+        const pid = (adminPidInput?.value || "").trim();
+        const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
+        if (!pid) return setAdminOut("Enter Payment ID first.");
+        await adminCall(`/payments/${encodeURIComponent(pid)}/refund`, { method: "POST", body: { amount: amt } });
+      });
+
+      $("btnAdminVoid")?.addEventListener("click", async () => {
+        saveProxyBase();
+        const pid = (adminPidInput?.value || "").trim();
+        if (!pid) return setAdminOut("Enter Payment ID first.");
+        await adminCall(`/payments/${encodeURIComponent(pid)}/void`, { method: "POST", body: {} });
+      });
+
+      $("btnAdminTokenPay")?.addEventListener("click", async () => {
+        saveProxyBase();
+        const tok = (adminTokenInput?.value || "").trim();
+        const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
+        const cur = adminCurrencySel?.value || "SAR";
+        if (!tok) return setAdminOut("Enter Token first.");
+
+        await adminCall(`/payments/token`, {
+          method: "POST",
+          body: {
+            amount: amt,
+            currency: cur,
+            description: "Token payment from Test Harness",
+            callback_url: new URL("thanks.html", window.location.href).toString(),
+            source: { type: "token", token: tok, "3ds": true, manual: false },
+            metadata: buildMetadata(),
+          },
+        });
+      });
+
+      // Save proxy on change/blur
+      proxyBaseInput?.addEventListener("change", saveProxyBase);
+      proxyBaseInput?.addEventListener("blur", saveProxyBase);
 
       // ---------- boot ----------
       (async () => {
@@ -551,6 +743,7 @@
         applyConfigToUI(cfg);
         writeSavedState(collectConfigFromUI()); // ensure consistent stored shape
         updateSavedPanels();
+        syncAdminDefaults(); // ✅ NEW (safe)
         await initForm(collectConfigFromUI());
       })();
     </script>
