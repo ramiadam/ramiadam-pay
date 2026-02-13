@@ -3,56 +3,100 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Moyasar Apple Pay Test</title>
+    <title>Moyasar Apple Pay Test (MPF 2.2.6)</title>
 
-    <!-- Moyasar Payment Form assets (v2.2.6) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.2.6/dist/moyasar.css" />
-<script src="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.2.6/dist/moyasar.umd.min.js"></script>
+    <!-- MPF 2.2.6 from jsDelivr -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.2.6/dist/moyasar.css"
+    />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=fetch"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.2.6/dist/moyasar.umd.min.js"></script>
 
     <style>
       body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; }
-      .wrap { max-width: 560px; margin: 0 auto; }
-      pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow:auto; }
+      .wrap { max-width: 640px; margin: 0 auto; }
+      pre { background: #f6f8fa; padding: 12px; border-radius: 10px; overflow:auto; }
       .hint { font-size: 13px; opacity: 0.8; }
       .box { margin-top: 12px; padding: 12px; border-radius: 10px; background: #f6f8fa; }
       code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-      button.small { padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
-      button.small:active { transform: translateY(1px); }
+      .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+      button { padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+      button:active { transform: translateY(1px); }
+      .muted { opacity: 0.75; }
     </style>
   </head>
 
   <body>
     <div class="wrap">
       <h1>Moyasar Apple Pay Test</h1>
-      <p class="hint">Open in <b>Safari</b> on a real Apple device with Apple Pay set up.</p>
+      <p class="hint">
+        Open in <b>Safari</b> on a real Apple device with Apple Pay set up.
+      </p>
 
-      <div class="mysr-form"></div>
+      <div class="box">
+        <div class="row">
+          <button id="resetBtn" type="button">Reset state + re-init form</button>
+          <button id="clearStorageBtn" type="button">Clear localStorage</button>
+        </div>
+        <p class="hint muted" style="margin:10px 0 0;">
+          Reset fixes “keeps same last payment id” by clearing UI + reinitializing the form.
+          Clear localStorage removes saved values.
+        </p>
+      </div>
+
+      <h3>Form</h3>
+      <div id="formMount" class="mysr-form"></div>
 
       <h3>Saved values</h3>
       <div class="box">
         <div><b>Last payment id:</b> <span id="pid"><i>None</i></span></div>
-        <div style="margin-top:8px;"><b>Saved token (localStorage):</b></div>
+        <div style="margin-top:10px;"><b>Token (if returned):</b></div>
         <div id="tokenLine"><i>None</i></div>
-        <div class="hint" style="margin-top:6px;">
+        <div class="hint muted" style="margin-top:8px;">
           Keys:
           <code>moyasar_last_payment_id</code>,
           <code>moyasar_last_token</code>,
           <code>moyasar_last_source</code>
         </div>
-        <div style="margin-top:10px;">
-          <button class="small" id="clearBtn" type="button">Clear saved values</button>
-        </div>
       </div>
 
-      <h3>Result (on_completed / on_failure)</h3>
-      <pre id="result">Waiting…</pre>
+      <h3>Log</h3>
+      <pre id="log">Ready.</pre>
     </div>
 
     <script>
-      const resultEl = document.getElementById("result");
-      const tokenLineEl = document.getElementById("tokenLine");
+      // ---------- Config (edit these only) ----------
+      const PUBLISHABLE_KEY = "pk_live_x7yDncyvViCw8yG3VpwMT7DhpdSWqUnTiWTdyjr8";
+      const AMOUNT_HALALAS = 5000; // 10.00 SAR
+      const CURRENCY = "SAR";
+      const DESCRIPTION = "Apple Pay Test";
+      const APPLEPAY_LABEL = "Rami";
+      const APPLEPAY_COUNTRY = "SA";
+      const VALIDATE_MERCHANT_URL = "https://api.moyasar.com/v1/applepay/initiate";
+
+      // Important:
+      // - manual=true should be TOP LEVEL to enforce authorize-only.
+      // - save_card=true requests tokenization (if enabled on your account).
+      const MANUAL_PAYMENT = true;
+      const SAVE_CARD = true;
+
+      // TEMP: include creditcard so the form is visible even if Apple Pay is unavailable.
+      // Once Apple Pay works, you can set to ["applepay"] only.
+      const METHODS = ["applepay", "creditcard"];
+      // ---------------------------------------------
+
+      const logEl = document.getElementById("log");
       const pidEl = document.getElementById("pid");
-      const clearBtn = document.getElementById("clearBtn");
+      const tokenLineEl = document.getElementById("tokenLine");
+      const resetBtn = document.getElementById("resetBtn");
+      const clearStorageBtn = document.getElementById("clearStorageBtn");
+      const formMount = document.getElementById("formMount");
+
+      function log(msg, obj) {
+        const line = obj ? `${msg}\n${JSON.stringify(obj, null, 2)}\n` : `${msg}\n`;
+        logEl.textContent = (logEl.textContent === "Ready." ? "" : logEl.textContent + "\n") + line;
+      }
 
       function showSaved() {
         const pid = localStorage.getItem("moyasar_last_payment_id");
@@ -62,84 +106,124 @@
         tokenLineEl.innerHTML = token ? `<code>${token}</code>` : "<i>None</i>";
       }
 
-      clearBtn.addEventListener("click", () => {
+      function clearSaved() {
         localStorage.removeItem("moyasar_last_payment_id");
         localStorage.removeItem("moyasar_last_token");
         localStorage.removeItem("moyasar_last_source");
         showSaved();
-        resultEl.textContent = "Cleared saved values.";
+        log("🧹 Cleared localStorage saved values.");
+      }
+
+      function resetUIForNewRun() {
+        // Clear log/UI (fixes “keeps same last payment id” in the page)
+        logEl.textContent = "Ready.";
+        pidEl.innerHTML = "<i>None</i>";
+        tokenLineEl.innerHTML = "<i>None</i>";
+
+        // Clear the form container so MPF doesn't keep previous state in DOM
+        formMount.innerHTML = "";
+      }
+
+      async function initForm() {
+        if (!window.Moyasar) {
+          log("❌ Moyasar not loaded. Check CDN/network/content blockers.");
+          throw new Error("Moyasar not loaded");
+        }
+
+        // Apple Pay availability hint
+        const hasApplePaySession = typeof window.ApplePaySession !== "undefined";
+        log("ApplePaySession exists: " + hasApplePaySession);
+        if (hasApplePaySession && typeof ApplePaySession.canMakePayments === "function") {
+          try {
+            log("canMakePayments(): " + ApplePaySession.canMakePayments());
+          } catch (e) {
+            log("⚠️ canMakePayments() threw", { message: e.message });
+          }
+        }
+
+        const callbackUrl = new URL("thanks.html", window.location.href).toString();
+
+        // IMPORTANT: MPF v2.2.6 requires on_completed to be promise-based (async)
+        Moyasar.init({
+          element: "#formMount",
+          amount: AMOUNT_HALALAS,
+          currency: CURRENCY,
+          description: DESCRIPTION,
+          publishable_api_key: PUBLISHABLE_KEY,
+          callback_url: callbackUrl,
+
+          // ✅ enforce manual capture at payment level
+          manual: MANUAL_PAYMENT,
+
+          methods: METHODS,
+
+          apple_pay: {
+            country: APPLEPAY_COUNTRY,
+            label: APPLEPAY_LABEL,
+            validate_merchant_url: VALIDATE_MERCHANT_URL,
+
+            // keep for Apple Pay config as well
+            manual: MANUAL_PAYMENT,
+            save_card: SAVE_CARD,
+          },
+
+          on_completed: async function (payment) {
+            // Clear previous run’s saved values in UI, then show the new ones
+            log("✅ on_completed fired", payment);
+
+            // Save values from *this* payment only
+            if (payment?.id) localStorage.setItem("moyasar_last_payment_id", payment.id);
+            localStorage.setItem("moyasar_last_source", JSON.stringify(payment?.source || null));
+
+            const token = payment?.source?.token;
+            if (token) {
+              localStorage.setItem("moyasar_last_token", token);
+              log("✅ Token saved to localStorage moyasar_last_token");
+            } else {
+              localStorage.removeItem("moyasar_last_token");
+              log("⚠️ No token returned on payment.source.token (saved source instead).");
+            }
+
+            showSaved();
+
+            // Promise-based return (async already returns a Promise)
+            return payment;
+          },
+
+          on_failure: async function (error) {
+            log("❌ on_failure fired", error);
+            return error;
+          },
+        });
+
+        log("✅ Moyasar.init done. Form should render above.");
+      }
+
+      resetBtn.addEventListener("click", async () => {
+        resetUIForNewRun();
+        // Optional: also clear storage so you don't see old pid/token
+        // clearSaved();
+        try {
+          await initForm();
+        } catch (e) {
+          log("❌ initForm crashed", { message: e.message, stack: e.stack });
+        }
       });
 
-      showSaved();
+      clearStorageBtn.addEventListener("click", () => {
+        clearSaved();
+      });
 
-      // Callback page URL
-      const callbackUrl = new URL("thanks.html", window.location.href).toString();
-
-      // Basic sanity checks
-      if (!window.Moyasar) {
-        resultEl.textContent = "❌ Moyasar.js not loaded. Disable content blockers or check network.";
-        throw new Error("Moyasar not loaded");
-      }
-
-      // OPTIONAL: show Apple Pay availability info (helps debugging)
-      const hasApplePaySession = typeof window.ApplePaySession !== "undefined";
-      if (hasApplePaySession && typeof ApplePaySession.canMakePayments === "function") {
+      // Initial load
+      (async () => {
+        showSaved();
+        resetUIForNewRun();
         try {
-          resultEl.textContent =
-            "ApplePaySession exists: true\n" +
-            "canMakePayments(): " + ApplePaySession.canMakePayments() + "\n\n" +
-            resultEl.textContent;
-        } catch (_) {}
-      } else {
-        resultEl.textContent =
-          "ApplePaySession exists: " + hasApplePaySession + "\n\n" + resultEl.textContent;
-      }
-
-      Moyasar.init({
-        element: ".mysr-form",
-
-        // Amount is in halalas: 1000 = 10.00 SAR
-        amount: 5000,
-        currency: "SAR",
-        description: "Apple Pay Test",
-        publishable_api_key: "pk_live_x7yDncyvViCw8yG3VpwMT7DhpdSWqUnTiWTdyjr8",
-        callback_url: callbackUrl,
-
-        // TEMP: include creditcard so you can confirm the widget renders even if Apple Pay is blocked
-        // After Apple Pay works, you can revert to ["applepay"] only.
-        methods: ["applepay", "creditcard"],
-
-        apple_pay: {
-          country: "SA",
-          label: "Rami",
-          validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
-          manual: true,     // authorize only; capture later via API
-          save_card: true,  // tokenize (requires tokenization enabled on your Moyasar account)
-        },
-
- on_completed: async function (payment) {
-    // do your normal logic
-    resultEl.textContent = JSON.stringify(payment, null, 2);
-
-    const token = payment?.source?.token;
-    localStorage.setItem("moyasar_last_payment_id", payment?.id || "");
-    localStorage.setItem("moyasar_last_source", JSON.stringify(payment?.source || null));
-
-    if (token) {
-      localStorage.setItem("moyasar_last_token", token);
-      tokenLineEl.innerHTML = `<code>${token}</code>`;
-    } else {
-      tokenLineEl.textContent =
-        "No token returned. Saved source to localStorage (moyasar_last_source).";
-    }
-
-    // IMPORTANT for v2.2.6: return a Promise (async does this automatically)
-    return payment;
-  },
-
-  on_failure: async function (error) {
-    resultEl.textContent =
-      "FAILED:\n" + (typeof error === "string" ? error : JSON.stringify(error, null, 2));
-    return error;
-  },
-});
+          await initForm();
+        } catch (e) {
+          log("❌ initForm crashed", { message: e.message, stack: e.stack });
+        }
+      })();
+    </script>
+  </body>
+</html>
