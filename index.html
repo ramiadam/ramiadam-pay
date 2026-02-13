@@ -1,92 +1,76 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Moyasar Apple Pay Test</title>
+<script>
+  const resultEl = document.getElementById("result");
+  const tokenLineEl = document.getElementById("tokenLine");
 
-    <!-- Moyasar Payment Form assets (v2.2.6) -->
-    <link rel="stylesheet" href="https://cdn.moyasar.com/mpf/2.2.6/moyasar.css" />
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=fetch"></script>
-    <script src="https://cdn.moyasar.com/mpf/2.2.6/moyasar.js"></script>
+  function log(msg, obj) {
+    resultEl.textContent =
+      (resultEl.textContent === "Waiting…" ? "" : resultEl.textContent + "\n") +
+      msg +
+      (obj ? "\n" + JSON.stringify(obj, null, 2) : "") +
+      "\n";
+  }
 
-    <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; }
-      .wrap { max-width: 520px; margin: 0 auto; }
-      pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow:auto; }
-      .hint { font-size: 13px; opacity: 0.8; }
-      .ok { margin-top: 12px; padding: 10px; border-radius: 8px; background: #f6f8fa; }
-      code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    </style>
-  </head>
+  // 1) Confirm Moyasar script loaded
+  if (!window.Moyasar) {
+    log("❌ Moyasar.js not loaded. Check Network tab / CDN blocked.");
+    throw new Error("Moyasar not loaded");
+  }
+  log("✅ Moyasar.js loaded");
 
-  <body>
-    <div class="wrap">
-      <h2>Moyasar Apple Pay Test</h2>
-      <p class="hint">
-        Open in <b>Safari</b> on a real Apple device with Apple Pay set up.
-      </p>
+  // 2) Check if Apple Pay is available in this browser/device
+  const hasApplePaySession = typeof window.ApplePaySession !== "undefined";
+  log("ApplePaySession exists: " + hasApplePaySession);
 
-      <div class="mysr-form"></div>
+  if (hasApplePaySession && typeof ApplePaySession.canMakePayments === "function") {
+    try {
+      log("canMakePayments(): " + ApplePaySession.canMakePayments());
+    } catch (e) {
+      log("⚠️ canMakePayments() threw error", { message: e.message });
+    }
+  }
 
-      <h3>Token</h3>
-      <div class="ok">
-        <div><b>Saved token (localStorage):</b></div>
-        <div id="tokenLine"><i>None yet</i></div>
-        <div class="hint">Key: <code>moyasar_last_token</code></div>
-      </div>
+  // show any previously saved token
+  const existing = localStorage.getItem("moyasar_last_token");
+  if (existing) tokenLineEl.innerHTML = "<code>" + existing + "</code>";
 
-      <h3>Result (on_completed)</h3>
-      <pre id="result">Waiting…</pre>
-    </div>
+  const callbackUrl = new URL("thanks.html", window.location.href).toString();
 
-    <script>
-      const resultEl = document.getElementById("result");
-      const tokenLineEl = document.getElementById("tokenLine");
+  try {
+    Moyasar.init({
+      element: ".mysr-form",
+      amount: 5000,
+      currency: "SAR",
+      description: "Apple Pay Test",
+      publishable_api_key: "pk_live_x7yDncyvViCw8yG3VpwMT7DhpdSWqUnTiWTdyjr8",
+      callback_url: callbackUrl,
+      methods: ["applepay"],
 
-      // show any previously saved token
-      const existing = localStorage.getItem("moyasar_last_token");
-      if (existing) tokenLineEl.innerHTML = "<code>" + existing + "</code>";
+      apple_pay: {
+        country: "SA",
+        label: "Rami",
+        manual: true,
+        save_card: true,
+        validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
+      },
 
-      const callbackUrl = new URL("thanks.html", window.location.href).toString();
+      on_completed: function (payment) {
+        log("✅ on_completed fired", payment);
+        const token = payment?.source?.token;
+        if (token) {
+          localStorage.setItem("moyasar_last_token", token);
+          tokenLineEl.innerHTML = "<code>" + token + "</code>";
+        } else {
+          log("⚠️ No token returned on payment.source.token");
+        }
+      },
 
-      Moyasar.init({
-        element: ".mysr-form",
-        amount: 5000, // 50.00 SAR (amount is in halalas)
-        currency: "SAR",
-        description: "Apple Pay Test",
-        publishable_api_key: "pk_live_REPLACE_ME",
-        callback_url: callbackUrl,
-        methods: ["applepay"],
+      on_failure: function (error) {
+        log("❌ on_failure fired", error);
+      },
+    });
 
-        apple_pay: {
-          country: "SA",
-          label: "Rami",
-          manual: true,     // authorize only (capture later)
-          save_card: true,  // request tokenization (must be enabled on your account)
-          validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
-        },
-
-        on_completed: function (payment) {
-          resultEl.textContent = JSON.stringify(payment, null, 2);
-
-          // Token usually appears here when save_card=true AND tokenization is enabled
-          const token = payment?.source?.token;
-
-          if (token) {
-            localStorage.setItem("moyasar_last_token", token);
-            tokenLineEl.innerHTML = "<code>" + token + "</code>";
-          } else {
-            tokenLineEl.textContent =
-              "No token returned. (Make sure tokenization is enabled on your Moyasar account and that save_card is supported for this payment type.)";
-          }
-        },
-
-        on_failure: function (error) {
-          resultEl.textContent =
-            "FAILED:\n" + (typeof error === "string" ? error : JSON.stringify(error, null, 2));
-        },
-      });
-    </script>
-  </body>
-</html>
+    log("✅ Moyasar.init called. If Apple Pay is available, a button should appear above.");
+  } catch (e) {
+    log("❌ Moyasar.init crashed", { message: e.message, stack: e.stack });
+  }
+</script>
