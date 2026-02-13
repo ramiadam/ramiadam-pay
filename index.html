@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Moyasar Apple Pay Test Harness (MPF 2.2.6)</title>
+    <title>RTB - Rami's Test Bench 🚀</title>
     
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32">
@@ -62,7 +62,7 @@
 
   <body>
     <div class="wrap">
-      <h1>Moyasar Apple Pay Test Harness</h1>
+      <h1>RTB - Rami's Test Bench 🚀</h1>
       <div class="sub">
         UI controls to test different scenarios without editing code.
         Works with MPF <b>2.2.6</b> (async callbacks required).
@@ -177,7 +177,7 @@
               </label>
             </div>
 
-            <div class="field" style="margin-top:10px;">
+            <div class="field" style="margin-top:10px; display:none;">
               <label>Validate merchant URL</label>
               <input id="validateUrl" type="text" />
               <div class="hint" style="margin-top:6px;">
@@ -463,7 +463,7 @@
           apple_pay: {
             country: apCountry.value,
             label: apLabel.value.trim() || "Rami",
-            validate_merchant_url: validateUrl.value.trim(),
+            validate_merchant_url: DEFAULT_VALIDATE_URL,
             manual: manual.checked,
             save_card: saveCard.checked,
           },
@@ -485,7 +485,7 @@
 
         apCountry.value = cfg.apple_pay?.country || "SA";
         apLabel.value = cfg.apple_pay?.label || "Rami";
-        validateUrl.value = cfg.apple_pay?.validate_merchant_url || "https://api.moyasar.com/v1/applepay/initiate";
+        if (validateUrl) validateUrl.value = DEFAULT_VALIDATE_URL;
 
         const networks = cfg.supported_networks || ["mada", "visa", "mastercard", "amex"];
         netBoxes.forEach(b => b.checked = networks.includes(b.value));
@@ -498,6 +498,7 @@
         md2k.value = mdKeys[1] || "tester";
         md2v.value = md[md2k.value] ?? (mdKeys[1] ? md[mdKeys[1]] : "rami");
       }
+      const DEFAULT_VALIDATE_URL = "https://api.moyasar.com/v1/applepay/initiate";
 
       // ---------- init / re-init ----------
       async function initForm(cfg) {
