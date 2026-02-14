@@ -57,15 +57,55 @@
       .pill.ok { border-color: rgba(22,163,74,.4); color: #86efac; }
       .pill.bad { border-color: rgba(239,68,68,.4); color: #fca5a5; }
       .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+      /* ✅ NEW: topbar + theme */
+      .topbar { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
+      .topbar .right { display:flex; gap:10px; align-items:center; }
+      .iconbtn {
+        border:1px solid var(--line); background:#0f172a; color:var(--text);
+        padding: 8px 12px; border-radius: 999px; cursor:pointer;
+        display:inline-flex; gap:8px; align-items:center;
+      }
+      .dot { width:10px; height:10px; border-radius:999px; display:inline-block; background: var(--muted); opacity:.7; }
+
+      body.light { --bg:#f6f7fb; --card:#ffffff; --muted:#5b6676; --text:#0b1220; --line:#d7deea; --chip:#f0f3f8; }
+      body.light pre { background:#f7f9fc; }
+      body.light input[type="text"], body.light input[type="number"], body.light select, body.light textarea { background:#f7f9fc; }
+      body.light .toggle, body.light .btn, body.light .pill, body.light .iconbtn { background:#f7f9fc; }
+
+      /* ✅ NEW: recent payments list */
+      .list { display:flex; flex-direction:column; gap:10px; }
+      .item {
+        border:1px solid var(--line); background:#0f172a; border-radius:14px; padding:10px;
+      }
+      body.light .item { background:#f7f9fc; }
+      .itemTop { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+      .itemId { font-weight:700; font-size:12px; }
+      .itemMeta { color: var(--muted); font-size:12px; }
+      .itemBtns { display:flex; gap:8px; flex-wrap:wrap; }
+      .btn.sm { padding:7px 10px; border-radius:999px; font-size:12px; }
+      .kv { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+      .kv .chip { font-size: 11px; padding:6px 10px; }
     </style>
   </head>
 
   <body>
     <div class="wrap">
-      <h1>RTB - Rami's Test Bench 🚀</h1>
-      <div class="sub">
-      <b>v1.1</b>
+
+      <!-- ✅ NEW: topbar (doesn't touch your layout) -->
+      <div class="topbar">
+        <div class="sub"><b>v1.1</b></div>
+        <div class="right">
+          <span class="dot" id="themeDot" title="Theme"></span>
+          <button class="iconbtn" id="themeToggle" type="button" title="Dark / Light">
+            <span id="themeIcon">🌙</span>
+            <span id="themeLabel">Dark</span>
+          </button>
+        </div>
       </div>
+
+      <h1>RTB - Rami's Test Bench 🚀</h1>
+      <div class="sub"></div>
 
       <div class="grid">
         <!-- Controls -->
@@ -238,12 +278,16 @@
           <h2>Payment Object (on_completed)</h2>
           <pre id="result">Waiting…</pre>
 
+          <!-- ✅ NEW: error decode -->
+          <div class="sp"></div>
+          <h2>Error Decode</h2>
+          <pre id="decode">—</pre>
+
           <div class="sp"></div>
 
           <h2>Saved Source (localStorage)</h2>
           <pre id="savedSource">—</pre>
 
-          <!-- ✅ NEW: Admin Panel (no design changes; uses same classes) -->
           <div class="sp"></div>
 
           <h2>Admin Actions</h2>
@@ -300,6 +344,17 @@
 
           <h2>Admin Output</h2>
           <pre id="adminOut">Ready…</pre>
+
+          <!-- ✅ NEW: Recent payments via worker -->
+          <div class="sp"></div>
+          <div class="row" style="justify-content:space-between;">
+            <h2 style="margin:0;">Recent Payments (last 5 via Proxy)</h2>
+            <button class="btn sm" id="btnRefreshRecent" type="button">Refresh</button>
+          </div>
+          <div class="hint" style="margin:8px 0 10px;">
+            Uses Proxy Base URL → GET <span class="mono">/payments?limit=5</span>
+          </div>
+          <div id="recentPayments" class="list"></div>
         </div>
       </div>
     </div>
@@ -312,8 +367,10 @@
         tok: "moyasar_last_token",
         src: "moyasar_last_source",
 
-        // ✅ NEW
         proxy: "moyasar_proxy_base_v1",
+
+        // ✅ NEW: theme
+        theme: "rtb_theme_v1",
       };
 
       // ---------- dom ----------
@@ -321,6 +378,7 @@
 
       const formMount = $("formMount");
       const resultEl = $("result");
+      const decodeEl = $("decode");
       const savedSourceEl = $("savedSource");
       const apAvailEl = $("apAvail");
       const canPayEl = $("canPay");
@@ -328,10 +386,16 @@
       const lastTokEl = $("lastTok");
       const netChips = $("netChips");
 
+      // theme
+      const themeToggle = $("themeToggle");
+      const themeIcon = $("themeIcon");
+      const themeLabel = $("themeLabel");
+      const themeDot = $("themeDot");
+
       // inputs
       const pk = $("pk");
       const amount = $("amount");
-      const currency = $("currency");
+      const currency = $("currency"); // may be commented in HTML, so can be null
       const desc = $("desc");
       const mApplePay = $("mApplePay");
       const mCard = $("mCard");
@@ -345,16 +409,22 @@
       const md2k = $("md2k");
       const md2v = $("md2v");
 
-      // ✅ NEW admin inputs
+      // admin inputs
       const proxyBaseInput = $("proxyBase");
       const adminPidInput = $("adminPid");
       const adminTokenInput = $("adminToken");
       const adminAmountInput = $("adminAmount");
-      const adminCurrencySel = $("adminCurrency");
+      const adminCurrencySel = $("adminCurrency"); // may be commented in HTML, so can be null
       const adminOut = $("adminOut");
+
+      // recent payments
+      const btnRefreshRecent = $("btnRefreshRecent");
+      const recentPaymentsEl = $("recentPayments");
 
       // networks (checkboxes with class net)
       const netBoxes = Array.from(document.querySelectorAll("input.net"));
+
+      const DEFAULT_VALIDATE_URL = "https://api.moyasar.com/v1/applepay/initiate";
 
       // ---------- helpers ----------
       function safeJsonParse(s, fallback) {
@@ -377,14 +447,12 @@
           description: "Apple Pay Reccuring",
           methods: { applepay: true, creditcard: true },
           networks: ["mada", "visa", "mastercard", "amex"],
-          // ✅ global save_card default
           save_card: true,
           apple_pay: {
             country: "SA",
             label: "Rami",
-            validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
+            validate_merchant_url: DEFAULT_VALIDATE_URL,
             manual: true,
-            // kept for backward compatibility with your stored configs
             save_card: true,
           },
           metadata: { scenario: "applepay_manual", tester: "rami" },
@@ -446,6 +514,26 @@
         return obj;
       }
 
+      // ✅ NEW: error decode
+      function decodeFromPaymentLike(p) {
+        // p can be payment object OR error object (best effort)
+        const src = p?.source || p?.payment?.source || p?.data?.source || null;
+        const code = src?.response_code ?? p?.response_code ?? p?.responseCode ?? null;
+        const msg = src?.response_message ?? p?.response_message ?? p?.responseMessage ?? null;
+
+        if (!code && !msg) return "—";
+
+        return JSON.stringify({
+          response_code: code || null,
+          response_message: msg || null,
+        }, null, 2);
+      }
+
+      function updateDecode(p) {
+        if (!decodeEl) return;
+        decodeEl.textContent = decodeFromPaymentLike(p);
+      }
+
       function collectConfigFromUI() {
         const methods = [];
         if (mApplePay.checked) methods.push("applepay");
@@ -456,13 +544,12 @@
         return {
           publishable_key: pk.value.trim(),
           amount: Math.max(1, parseInt(amount.value || "100", 10)),
-          currency: currency.value,
+          currency: (currency?.value || "SAR"),
           description: desc.value.trim() || "Apple Pay Test",
           methods,
           supported_networks: networks,
           manual: manual.checked,
 
-          // ✅ GLOBAL save_card (applies to applepay + creditcard)
           save_card: saveCard.checked,
 
           apple_pay: {
@@ -470,7 +557,6 @@
             label: apLabel.value.trim() || "Rami",
             validate_merchant_url: DEFAULT_VALIDATE_URL,
             manual: manual.checked,
-            // kept for compatibility; driven by global toggle
             save_card: saveCard.checked,
           },
           metadata: buildMetadata(),
@@ -480,7 +566,7 @@
       function applyConfigToUI(cfg) {
         pk.value = cfg.publishable_key || "";
         amount.value = cfg.amount ?? 100;
-        currency.value = cfg.currency || "SAR";
+        if (currency) currency.value = cfg.currency || "SAR";
         desc.value = cfg.description || "Apple Pay Test";
 
         mApplePay.checked = cfg.methods?.includes("applepay") ?? true;
@@ -488,7 +574,6 @@
 
         manual.checked = !!cfg.manual;
 
-        // ✅ use global save_card if exists, else fallback to apple_pay.save_card
         const sc = (typeof cfg.save_card === "boolean") ? cfg.save_card : !!cfg.apple_pay?.save_card;
         saveCard.checked = sc;
 
@@ -507,12 +592,12 @@
         md2k.value = mdKeys[1] || "tester";
         md2v.value = md[md2k.value] ?? (mdKeys[1] ? md[mdKeys[1]] : "rami");
       }
-      const DEFAULT_VALIDATE_URL = "https://api.moyasar.com/v1/applepay/initiate";
 
       // ---------- init / re-init ----------
       async function initForm(cfg) {
         resultEl.textContent = "Waiting…";
-        formMount.innerHTML = ""; // prevents MPF holding prior state in DOM
+        updateDecode(null);
+        formMount.innerHTML = "";
         setApplePayAvailabilityPills();
 
         if (!window.Moyasar) {
@@ -520,7 +605,6 @@
           return;
         }
 
-        // Guardrails
         if (!cfg.publishable_key || !cfg.publishable_key.startsWith("pk_")) {
           resultEl.textContent = "⚠️ Enter a valid publishable key (pk_...) then click Apply.";
           return;
@@ -538,11 +622,9 @@
           return;
         }
 
-        // ✅ normalize save_card (supports old saved configs)
         const globalSaveCard =
           (typeof cfg.save_card === "boolean") ? cfg.save_card : !!cfg.apple_pay?.save_card;
 
-        // MPF 2.2.6 requires promise-based on_completed
         Moyasar.init({
           element: "#formMount",
           amount: cfg.amount,
@@ -555,7 +637,6 @@
           manual: cfg.manual,
           supported_networks: cfg.supported_networks,
 
-          // ✅ Apply save_card to ALL methods (credit card + apple pay)
           credit_card: {
             save_card: globalSaveCard,
             manual: cfg.manual,
@@ -573,6 +654,7 @@
 
           on_completed: async function (payment) {
             resultEl.textContent = JSON.stringify(payment, null, 2);
+            updateDecode(payment);
 
             if (payment?.id) localStorage.setItem(K.pid, payment.id);
             localStorage.setItem(K.src, JSON.stringify(payment?.source || null));
@@ -582,19 +664,20 @@
             else localStorage.removeItem(K.tok);
 
             updateSavedPanels();
-            syncAdminDefaults(); // ✅ NEW (safe)
+            syncAdminDefaults();
             return payment;
           },
 
           on_failure: async function (error) {
             resultEl.textContent =
               "FAILED:\n" + (typeof error === "string" ? error : JSON.stringify(error, null, 2));
+            updateDecode(error);
             return error;
           },
         });
 
         updateSavedPanels();
-        syncAdminDefaults(); // ✅ NEW (safe)
+        syncAdminDefaults();
       }
 
       // ---------- events ----------
@@ -610,18 +693,18 @@
         localStorage.removeItem(K.tok);
         localStorage.removeItem(K.src);
         updateSavedPanels();
-        syncAdminDefaults(); // ✅ NEW (safe)
+        syncAdminDefaults();
         resultEl.textContent = "Cleared saved payment id/token/source.";
+        updateDecode(null);
       });
 
-      // live chip updates when toggling networks
       netBoxes.forEach(b => b.addEventListener("change", () => {
         const nets = netBoxes.filter(x => x.checked).map(x => x.value);
         renderChips(nets);
       }));
 
       // =========================
-      // ✅ NEW: Admin Panel Logic
+      // Admin Panel Logic
       // =========================
       function setAdminOut(data) {
         if (!adminOut) return;
@@ -644,10 +727,7 @@
       }
 
       function syncAdminDefaults() {
-        // Fill proxy from storage (if any)
         loadProxyBase();
-
-        // Fill pid/token from last saved
         const { pid, tok } = readLast();
 
         if (adminPidInput && (!adminPidInput.value || adminPidInput.value === "—")) {
@@ -657,9 +737,8 @@
           adminTokenInput.value = tok || "";
         }
 
-        // Align amount/currency to current UI values
         if (adminAmountInput && !adminAmountInput.value) adminAmountInput.value = amount?.value || "100";
-        if (adminCurrencySel) adminCurrencySel.value = currency?.value || "SAR";
+        if (adminCurrencySel && currency) adminCurrencySel.value = currency.value || "SAR";
       }
 
       async function adminCall(path, { method = "POST", body = null } = {}) {
@@ -688,12 +767,13 @@
         }
       }
 
-      // Wire buttons if present
       $("btnAdminFetch")?.addEventListener("click", async () => {
         saveProxyBase();
         const pid = (adminPidInput?.value || "").trim();
         if (!pid) return setAdminOut("Enter Payment ID first.");
-        await adminCall(`/payments/${encodeURIComponent(pid)}`, { method: "GET" });
+        const data = await adminCall(`/payments/${encodeURIComponent(pid)}`, { method: "GET" });
+        // decode from fetched payment too
+        if (data) updateDecode(data);
       });
 
       $("btnAdminCapture")?.addEventListener("click", async () => {
@@ -723,7 +803,7 @@
         saveProxyBase();
         const tok = (adminTokenInput?.value || "").trim();
         const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
-        const cur = adminCurrencySel?.value || "SAR";
+        const cur = (adminCurrencySel?.value || currency?.value || "SAR");
         if (!tok) return setAdminOut("Enter Token first.");
 
         await adminCall(`/payments/token`, {
@@ -739,19 +819,139 @@
         });
       });
 
-      // Save proxy on change/blur
       proxyBaseInput?.addEventListener("change", saveProxyBase);
       proxyBaseInput?.addEventListener("blur", saveProxyBase);
 
+      // =========================
+      // ✅ Recent Payments (last 5)
+      // =========================
+      function formatAmountHalalas(a) {
+        if (typeof a !== "number") return "—";
+        return `${a} (≈ ${(a/100).toFixed(2)} SAR)`;
+      }
+
+      function pickPaymentsArray(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.payments)) return data.payments;
+        if (Array.isArray(data.data)) return data.data;
+        return [];
+      }
+
+      function renderRecentPayments(payments) {
+        if (!recentPaymentsEl) return;
+        recentPaymentsEl.innerHTML = "";
+
+        if (!payments.length) {
+          recentPaymentsEl.innerHTML = `<div class="hint">No payments returned. (Worker endpoint might not be implemented yet.)</div>`;
+          return;
+        }
+
+        payments.forEach((p) => {
+          const id = p?.id || "—";
+          const status = p?.status || "—";
+          const amt = p?.amount;
+          const created = p?.created_at ? new Date(p.created_at * 1000).toLocaleString() : (p?.created_at || "—");
+          const srcType = p?.source?.type || p?.source?.company || p?.source?.name || (p?.source ? "source" : "—");
+          const rcode = p?.source?.response_code ?? "—";
+          const rmsg = p?.source?.response_message ?? "—";
+
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `
+            <div class="itemTop">
+              <div>
+                <div class="itemId mono">${id}</div>
+                <div class="itemMeta">${created} • <b>${status}</b> • ${formatAmountHalalas(typeof amt === "number" ? amt : null)} • ${srcType}</div>
+              </div>
+              <div class="itemBtns">
+                <button class="btn sm" data-use="${id}">Use</button>
+                <button class="btn sm" data-fetch="${id}">Fetch</button>
+              </div>
+            </div>
+            <div class="kv">
+              <div class="chip">response_code: <span class="mono">${rcode}</span></div>
+              <div class="chip">response_message: <span class="mono">${String(rmsg).slice(0, 120)}</span></div>
+            </div>
+          `;
+          recentPaymentsEl.appendChild(div);
+        });
+
+        // bind buttons
+        recentPaymentsEl.querySelectorAll("button[data-use]").forEach((b) => {
+          b.addEventListener("click", () => {
+            const id = b.getAttribute("data-use");
+            if (adminPidInput) adminPidInput.value = id;
+          });
+        });
+
+        recentPaymentsEl.querySelectorAll("button[data-fetch]").forEach((b) => {
+          b.addEventListener("click", async () => {
+            const id = b.getAttribute("data-fetch");
+            if (adminPidInput) adminPidInput.value = id;
+            const data = await adminCall(`/payments/${encodeURIComponent(id)}`, { method: "GET" });
+            if (data) updateDecode(data);
+          });
+        });
+      }
+
+      async function refreshRecentPayments() {
+        saveProxyBase();
+        const base = getProxyBase();
+        if (!base || !base.startsWith("http")) {
+          renderRecentPayments([]);
+          if (recentPaymentsEl) {
+            recentPaymentsEl.innerHTML = `<div class="hint">Set Proxy Base URL first, then click Refresh.</div>`;
+          }
+          return;
+        }
+
+        if (recentPaymentsEl) recentPaymentsEl.innerHTML = `<div class="hint">Loading…</div>`;
+        const res = await fetch(base + `/payments?limit=5`, { method: "GET" });
+        const text = await res.text();
+
+        let data = null;
+        try { data = JSON.parse(text); } catch { data = null; }
+
+        const arr = pickPaymentsArray(data);
+        renderRecentPayments(arr);
+      }
+
+      btnRefreshRecent?.addEventListener("click", refreshRecentPayments);
+
+      // =========================
+      // ✅ Theme
+      // =========================
+      function applyTheme(mode) {
+        document.body.classList.toggle("light", mode === "light");
+        if (themeIcon) themeIcon.textContent = (mode === "light") ? "☀️" : "🌙";
+        if (themeLabel) themeLabel.textContent = (mode === "light") ? "Light" : "Dark";
+        if (themeDot) themeDot.style.background = (mode === "light") ? "#f59e0b" : "#60a5fa";
+      }
+
+      function getTheme() {
+        return localStorage.getItem(K.theme) || "dark";
+      }
+
+      function setTheme(mode) {
+        localStorage.setItem(K.theme, mode);
+        applyTheme(mode);
+      }
+
+      themeToggle?.addEventListener("click", () => {
+        const cur = getTheme();
+        setTheme(cur === "light" ? "dark" : "light");
+      });
+
       // ---------- boot ----------
       (async () => {
+        // apply theme early
+        applyTheme(getTheme());
+
         const cfg = readSavedState();
 
-        // normalize to the UI-friendly shape
-        // (older saved configs might differ)
         cfg.methods = cfg.methods || (cfg.methods?.applepay ? ["applepay"] : ["creditcard"]);
         if (cfg.methods?.applepay || cfg.methods?.creditcard) {
-          // if someone saved as object by mistake, coerce
           cfg.methods = [];
           if (cfg.methods.applepay) cfg.methods.push("applepay");
           if (cfg.methods.creditcard) cfg.methods.push("creditcard");
@@ -760,23 +960,27 @@
         cfg.apple_pay = cfg.apple_pay || {
           country: "SA",
           label: "Rami",
-          validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
+          validate_merchant_url: DEFAULT_VALIDATE_URL,
           manual: true,
           save_card: true,
         };
 
-        // ✅ if old saved config only had apple_pay.save_card, promote it
         if (typeof cfg.save_card !== "boolean") {
           cfg.save_card = !!cfg.apple_pay?.save_card;
         }
-        // keep both aligned
         cfg.apple_pay.save_card = cfg.save_card;
 
         applyConfigToUI(cfg);
-        writeSavedState(collectConfigFromUI()); // ensure consistent stored shape
+        writeSavedState(collectConfigFromUI());
         updateSavedPanels();
-        syncAdminDefaults(); // ✅ NEW (safe)
+        syncAdminDefaults();
         await initForm(collectConfigFromUI());
+
+        // optional: auto refresh recent list on load if proxy is set
+        loadProxyBase();
+        if (getProxyBase()) {
+          refreshRecentPayments().catch(() => {});
+        }
       })();
     </script>
   </body>
