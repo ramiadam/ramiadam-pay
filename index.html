@@ -96,10 +96,10 @@
         margin-bottom: 6px;
       }
 
-      input[type="text"],
-      input[type="number"],
-      select,
-      textarea {
+      .card input[type="text"],
+      .card input[type="number"],
+      .card select,
+      .card textarea {
         width: 100%;
         box-sizing: border-box;
         background: #0f172a;
@@ -298,7 +298,11 @@
       body.light .item {
         background: #f7f9fc;
       }
-
+      /* Fix Moyasar internal inputs styling */
+      .moyasar-form input {
+        color: inherit !important;
+        background: transparent !important;
+      }
       .itemTop {
         display: flex;
         justify-content: space-between;
@@ -339,6 +343,13 @@
       .kv .chip {
         font-size: 11px;
         padding: 6px 10px;
+      }
+      .footer {
+        text-align: center;
+        padding: 18px 0 28px;
+        color: var(--muted);
+        font-size: 12px;
+        opacity: 0.8;
       }
     </style>
   </head>
@@ -593,11 +604,11 @@
 
           <div class="sp"></div>
           <div class="row" style="justify-content: space-between">
-            <h2 style="margin: 0">Recent Payments (last 5 via Proxy)</h2>
+            <h2 style="margin: 0">Recent Payments</h2>
             <button class="btn sm" id="btnRefreshRecent" type="button">Refresh</button>
           </div>
-          <div class="hint" style="margin: 8px 0 10px">
-            Uses Proxy Base URL → GET <span class="mono">/payments?limit=5</span>
+          <div class="hint" style="margin:8px 0 10px;">
+            <span class="mono"></span>
           </div>
           <div id="recentPayments" class="list"></div>
         </div>
@@ -761,7 +772,7 @@
             manual: true,
             save_card: true,
           },
-          metadata: { scenario: "applepay_manual", tester: "rami" },
+          metadata: { order_id: "1995", scenario: "applepay+recurring" },
         };
       }
 
@@ -1078,9 +1089,17 @@
           const id = p?.id || "—";
           const status = p?.status || "—";
           const amt = p?.amount;
-          const created = p?.created_at
-            ? new Date(p.created_at * 1000).toLocaleString()
-            : (p?.created_at || "—");
+          let created = "—";
+          if (p?.created_at != null) {
+            if (typeof p.created_at === "number") {
+              // if it’s already milliseconds (very large), don’t multiply
+              const ms = p.created_at > 1e12 ? p.created_at : p.created_at * 1000;
+              created = new Date(ms).toLocaleString();
+            } else if (typeof p.created_at === "string") {
+              created = new Date(p.created_at).toLocaleString();
+            }
+            if (created === "Invalid Date") created = String(p.created_at);
+          }
           const srcType = p?.source?.type || (p?.source ? "source" : "—");
           const rcode = p?.source?.response_code ?? "—";
           const rmsg = p?.source?.response_message ?? "—";
@@ -1221,7 +1240,17 @@
         // auto refresh if proxy exists
         loadProxyBase();
         if (getProxyBase()) refreshRecentPayments().catch(() => {});
+        // Footer auto year
+        const y = document.getElementById("year");
+        if (y) y.textContent = new Date().getFullYear();
       })();
+      window.addEventListener("DOMContentLoaded", () => {
+        const y = document.getElementById("year");
+        if (y) y.textContent = new Date().getFullYear();
+      });
     </script>
+    <footer class="footer">
+      © <span id="year"></span> Rami Adam
+    </footer>
   </body>
 </html>
