@@ -718,7 +718,15 @@
 
       function loadProxyBase() {
         const saved = localStorage.getItem(K.proxy);
-        if (saved && proxyBaseInput) proxyBaseInput.value = saved;
+        const defaultProxy = "https://api.ramiadam.com";
+
+        if (proxyBaseInput) {
+          proxyBaseInput.value = saved || defaultProxy;
+        }
+
+        if (!saved) {
+          localStorage.setItem(K.proxy, defaultProxy);
+        }
       }
 
       function saveProxyBase() {
