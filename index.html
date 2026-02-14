@@ -267,10 +267,11 @@
         background: #f7f9fc;
       }
 
-      body.light input[type="text"],
-      body.light input[type="number"],
-      body.light select,
-      body.light textarea {
+      /* IMPORTANT: scope light backgrounds to your cards only (avoid affecting MPF inputs) */
+      body.light .card input[type="text"],
+      body.light .card input[type="number"],
+      body.light .card select,
+      body.light .card textarea {
         background: #f7f9fc;
       }
 
@@ -298,11 +299,7 @@
       body.light .item {
         background: #f7f9fc;
       }
-      /* Fix Moyasar internal inputs styling */
-      .moyasar-form input {
-        color: inherit !important;
-        background: transparent !important;
-      }
+
       .itemTop {
         display: flex;
         justify-content: space-between;
@@ -344,6 +341,7 @@
         font-size: 11px;
         padding: 6px 10px;
       }
+
       .footer {
         text-align: center;
         padding: 18px 0 28px;
@@ -351,21 +349,10 @@
         font-size: 12px;
         opacity: 0.8;
       }
-      /* MPF card fields readability (dark mode) */
-      .moyasar-form .moyasar-form__field,
-      .moyasar-form .moyasar-form__group,
-      .moyasar-form .moyasar-form__input,
-      .moyasar-form .moyasar-form__control {
-        background: rgba(255, 255, 255, 0.06) !important;
-        color: var(--text) !important;
-      }
 
-      /* Make placeholders / labels readable */
-      .moyasar-form,
-      .moyasar-form label,
-      .moyasar-form .moyasar-form__label,
-      .moyasar-form .moyasar-form__text {
-        color: var(--text) !important;
+      /* ✅ Fix MPF Expiry/CVC gap (match Moyasar demo) */
+      .moyasar-form .moyasar-form__group {
+        gap: 0 !important;
       }
     </style>
   </head>
@@ -629,6 +616,11 @@
           <div id="recentPayments" class="list"></div>
         </div>
       </div>
+
+      <!-- ✅ Footer BEFORE script so year always exists -->
+      <footer class="footer">
+        © <span id="year"></span> Rami Adam
+      </footer>
     </div>
 
     <script>
@@ -852,12 +844,11 @@
         };
       }
 
-      // ---------- THE FIX: clean remount each Apply ----------
+      // Clean remount each Apply
       async function initForm(cfg) {
         resultEl.textContent = "Waiting…";
         updateDecode(null);
 
-        // Force a clean remount every time (fixes: Apply then widget not showing until refresh)
         const old = document.getElementById("formMount");
         const fresh = document.createElement("div");
         fresh.id = "formMount";
@@ -955,7 +946,7 @@
         syncAdminDefaults();
       }
 
-      // ---------- Proxy ----------
+      // Proxy
       function getProxyBase() {
         return (proxyBaseInput?.value || "").trim().replace(/\/+$/, "");
       }
@@ -1078,7 +1069,7 @@
       proxyBaseInput?.addEventListener("change", saveProxyBase);
       proxyBaseInput?.addEventListener("blur", saveProxyBase);
 
-      // ---------- Recent payments (last 5 via worker) ----------
+      // Recent payments (last 5 via worker)
       function pickPaymentsArray(data) {
         if (!data) return [];
         if (Array.isArray(data)) return data;
@@ -1105,10 +1096,10 @@
           const id = p?.id || "—";
           const status = p?.status || "—";
           const amt = p?.amount;
+
           let created = "—";
           if (p?.created_at != null) {
             if (typeof p.created_at === "number") {
-              // if it’s already milliseconds (very large), don’t multiply
               const ms = p.created_at > 1e12 ? p.created_at : p.created_at * 1000;
               created = new Date(ms).toLocaleString();
             } else if (typeof p.created_at === "string") {
@@ -1116,6 +1107,7 @@
             }
             if (created === "Invalid Date") created = String(p.created_at);
           }
+
           const srcType = p?.source?.type || (p?.source ? "source" : "—");
           const rcode = p?.source?.response_code ?? "—";
           const rmsg = p?.source?.response_message ?? "—";
@@ -1179,7 +1171,7 @@
 
       btnRefreshRecent?.addEventListener("click", refreshRecentPayments);
 
-      // ---------- Theme ----------
+      // Theme
       function applyTheme(mode) {
         document.body.classList.toggle("light", mode === "light");
         themeIcon.textContent = mode === "light" ? "☀️" : "🌙";
@@ -1201,7 +1193,7 @@
         setTheme(cur === "light" ? "dark" : "light");
       });
 
-      // ---------- Boot ----------
+      // Boot
       $("applyBtn").addEventListener("click", async () => {
         const cfg = collectConfigFromUI();
         writeSavedState(cfg);
@@ -1231,12 +1223,6 @@
 
         const cfg = readSavedState();
 
-        // normalize
-        if (!Array.isArray(cfg.methods)) {
-          cfg.methods = [];
-          if (cfg.methods?.applepay) cfg.methods.push("applepay");
-          if (cfg.methods?.creditcard) cfg.methods.push("creditcard");
-        }
         cfg.supported_networks = cfg.supported_networks || ["mada", "visa", "mastercard", "amex"];
         cfg.apple_pay = cfg.apple_pay || {
           country: "SA",
@@ -1253,20 +1239,13 @@
         syncAdminDefaults();
         await initForm(collectConfigFromUI());
 
-        // auto refresh if proxy exists
         loadProxyBase();
         if (getProxyBase()) refreshRecentPayments().catch(() => {});
-        // Footer auto year
+
+        // ✅ footer year
         const y = document.getElementById("year");
         if (y) y.textContent = new Date().getFullYear();
       })();
-      window.addEventListener("DOMContentLoaded", () => {
-        const y = document.getElementById("year");
-        if (y) y.textContent = new Date().getFullYear();
-      });
     </script>
-    <footer class="footer">
-      © <span id="year"></span> Rami Adam
-    </footer>
   </body>
 </html>
