@@ -64,8 +64,7 @@
     <div class="wrap">
       <h1>RTB - Rami's Test Bench 🚀</h1>
       <div class="sub">
-        UI controls to test different scenarios without editing code.
-        Works with MPF <b>2.2.6</b> (async callbacks required).
+      <b>v1.1</b>
       </div>
 
       <div class="grid">
@@ -83,15 +82,14 @@
             <div class="field" style="flex:1; min-width: 160px;">
               <label>Amount</label>
               <input id="amount" type="number" min="1" step="1" />
-              <div class="hint" style="margin-top:6px;">100 = 1.00 SAR</div>
             </div>
 
-            <div class="field" style="flex:1; min-width: 140px;">
+<!--             <div class="field" style="flex:1; min-width: 140px;">
               <label>Currency</label>
               <select id="currency">
                 <option value="SAR">SAR</option>
               </select>
-            </div>
+            </div> -->
           </div>
 
           <div class="field">
@@ -164,7 +162,8 @@
               <label class="toggle" style="flex:1;">
                 <input id="manual" type="checkbox" />
                 <div>
-                  <b>Manual</b><br /><span>authorize only; capture later</span>
+                  <b>Manual</b><br />
+                  <span>authorize only; capture later</span>
                 </div>
               </label>
 
@@ -247,7 +246,7 @@
           <!-- ✅ NEW: Admin Panel (no design changes; uses same classes) -->
           <div class="sp"></div>
 
-          <h2>Admin Actions (via Proxy)</h2>
+          <h2>Admin Actions</h2>
           <div class="hint" style="margin-bottom:10px;">
             Capture / Refund / Void and Token payments require <b>secret key</b> → must go through a backend proxy.
           </div>
@@ -273,20 +272,20 @@
               <div class="hint" style="margin-top:6px;">Auto-filled from last saved source token (if present).</div>
             </div>
           </div>
-
+          
           <div class="row">
-            <div class="field" style="flex:1; min-width: 180px;">
+            <div class="field" style="flex:1; min-width: 160px;">
               <label>Admin Amount</label>
               <input id="adminAmount" type="number" min="1" step="1" />
               <div class="hint" style="margin-top:6px;">Used for capture/refund/token payment.</div>
             </div>
 
-            <div class="field" style="flex:1; min-width: 180px;">
+            <!-- <div class="field" style="flex:1; min-width: 140px;">
               <label>Admin Currency</label>
               <select id="adminCurrency">
                 <option value="SAR">SAR</option>
               </select>
-            </div>
+            </div> -->
           </div>
 
           <div class="row" style="margin-top: 6px;">
@@ -373,7 +372,7 @@
         const cfg = safeJsonParse(localStorage.getItem(K.cfg), null);
         return cfg || {
           publishable_key: "",
-          amount: 1000,
+          amount: 100,
           currency: "SAR",
           description: "Apple Pay Reccuring",
           methods: { applepay: true, creditcard: true },
@@ -456,7 +455,7 @@
 
         return {
           publishable_key: pk.value.trim(),
-          amount: Math.max(1, parseInt(amount.value || "1000", 10)),
+          amount: Math.max(1, parseInt(amount.value || "100", 10)),
           currency: currency.value,
           description: desc.value.trim() || "Apple Pay Test",
           methods,
@@ -480,7 +479,7 @@
 
       function applyConfigToUI(cfg) {
         pk.value = cfg.publishable_key || "";
-        amount.value = cfg.amount ?? 1000;
+        amount.value = cfg.amount ?? 100;
         currency.value = cfg.currency || "SAR";
         desc.value = cfg.description || "Apple Pay Test";
 
@@ -659,7 +658,7 @@
         }
 
         // Align amount/currency to current UI values
-        if (adminAmountInput && !adminAmountInput.value) adminAmountInput.value = amount?.value || "1000";
+        if (adminAmountInput && !adminAmountInput.value) adminAmountInput.value = amount?.value || "100";
         if (adminCurrencySel) adminCurrencySel.value = currency?.value || "SAR";
       }
 
