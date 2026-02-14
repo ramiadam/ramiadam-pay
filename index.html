@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>RTB - Rami's Test Bench 🚀</title>
-    
-    <link rel="icon" href="favicon.ico" sizes="any">
-    <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="favicon-16.png" sizes="16x16">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="favicon-16.png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180" />
 
     <link
       rel="stylesheet"
@@ -17,84 +17,336 @@
     <script src="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.2.6/dist/moyasar.umd.min.js"></script>
 
     <style>
-      :root { --bg:#0b0f19; --card:#121a2a; --muted:#9aa4b2; --text:#e6eaf0; --line:#22304a; --chip:#1a2640; --ok:#16a34a; --bad:#ef4444; }
-      body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--text); }
-      .wrap { max-width: 1050px; margin: 0 auto; padding: 20px; }
-      h1 { margin: 4px 0 14px; font-size: 22px; }
-      .sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
-      .grid { display:grid; grid-template-columns: 420px 1fr; gap:16px; align-items:start; }
-      @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
-      .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
-      .card h2 { font-size: 14px; margin: 0 0 10px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
-      .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-      .sp { height: 10px; }
-      label { font-size: 12px; color: var(--muted); display:block; margin-bottom: 6px; }
-      input[type="text"], input[type="number"], select, textarea {
-        width: 100%; box-sizing:border-box;
-        background:#0f172a; color:var(--text);
-        border:1px solid var(--line); border-radius: 12px;
-        padding: 10px 10px; outline:none;
+      :root {
+        --bg: #0b0f19;
+        --card: #121a2a;
+        --muted: #9aa4b2;
+        --text: #e6eaf0;
+        --line: #22304a;
+        --chip: #1a2640;
       }
-      textarea { min-height: 70px; resize: vertical; }
-      input[type="checkbox"] { transform: scale(1.05); }
-      .field { margin-bottom: 12px; }
-      .toggle { display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--line); border-radius:14px; background:#0f172a; }
-      .toggle b { font-size: 13px; }
-      .toggle span { color: var(--muted); font-size: 12px; }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      h1 {
+        margin: 4px 0 14px;
+        font-size: 22px;
+      }
+
+      .sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+
+      @media (max-width: 980px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+      }
+
+      .card h2 {
+        font-size: 14px;
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .sp {
+        height: 10px;
+      }
+
+      label {
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        background: #0f172a;
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 10px;
+        outline: none;
+      }
+
+      textarea {
+        min-height: 70px;
+        resize: vertical;
+      }
+
+      input[type="checkbox"] {
+        transform: scale(1.05);
+      }
+
+      .field {
+        margin-bottom: 12px;
+      }
+
+      .toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #0f172a;
+      }
+
+      .toggle b {
+        font-size: 13px;
+      }
+
+      .toggle span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
       .btn {
-        border:1px solid var(--line); background:#0f172a; color:var(--text);
-        padding: 10px 12px; border-radius: 12px; cursor:pointer;
+        border: 1px solid var(--line);
+        background: #0f172a;
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        cursor: pointer;
       }
-      .btn.primary { background:#1b2a4a; }
-      .btn:active { transform: translateY(1px); }
-      .chips { display:flex; flex-wrap:wrap; gap:8px; }
-      .chip { background: var(--chip); border:1px solid var(--line); border-radius: 999px; padding: 7px 10px; font-size: 12px; }
-      .hint { color: var(--muted); font-size: 12px; line-height: 1.35; }
-      pre { margin:0; background:#0a1020; border:1px solid var(--line); border-radius: 16px; padding: 12px; overflow:auto; }
-      code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-      .status { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-      .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; border:1px solid var(--line); background:#0f172a; }
-      .pill.ok { border-color: rgba(22,163,74,.4); color: #86efac; }
-      .pill.bad { border-color: rgba(239,68,68,.4); color: #fca5a5; }
-      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
-      /* ✅ NEW: topbar + theme */
-      .topbar { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
-      .topbar .right { display:flex; gap:10px; align-items:center; }
+      .btn.primary {
+        background: #1b2a4a;
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        background: var(--chip);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      pre {
+        margin: 0;
+        background: #0a1020;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px;
+        overflow: auto;
+      }
+
+      .status {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .pill {
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        border: 1px solid var(--line);
+        background: #0f172a;
+      }
+
+      .pill.ok {
+        border-color: rgba(22, 163, 74, 0.4);
+        color: #86efac;
+      }
+
+      .pill.bad {
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #fca5a5;
+      }
+
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+
+      /* Topbar + Theme toggle */
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .topbar .right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
       .iconbtn {
-        border:1px solid var(--line); background:#0f172a; color:var(--text);
-        padding: 8px 12px; border-radius: 999px; cursor:pointer;
-        display:inline-flex; gap:8px; align-items:center;
+        border: 1px solid var(--line);
+        background: #0f172a;
+        color: var(--text);
+        padding: 8px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
       }
-      .dot { width:10px; height:10px; border-radius:999px; display:inline-block; background: var(--muted); opacity:.7; }
 
-      body.light { --bg:#f6f7fb; --card:#ffffff; --muted:#5b6676; --text:#0b1220; --line:#d7deea; --chip:#f0f3f8; }
-      body.light pre { background:#f7f9fc; }
-      body.light input[type="text"], body.light input[type="number"], body.light select, body.light textarea { background:#f7f9fc; }
-      body.light .toggle, body.light .btn, body.light .pill, body.light .iconbtn { background:#f7f9fc; }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        display: inline-block;
+        background: var(--muted);
+        opacity: 0.7;
+      }
 
-      /* ✅ NEW: recent payments list */
-      .list { display:flex; flex-direction:column; gap:10px; }
+      body.light {
+        --bg: #f6f7fb;
+        --card: #ffffff;
+        --muted: #5b6676;
+        --text: #0b1220;
+        --line: #d7deea;
+        --chip: #f0f3f8;
+      }
+
+      body.light pre {
+        background: #f7f9fc;
+      }
+
+      body.light input[type="text"],
+      body.light input[type="number"],
+      body.light select,
+      body.light textarea {
+        background: #f7f9fc;
+      }
+
+      body.light .toggle,
+      body.light .btn,
+      body.light .pill,
+      body.light .iconbtn {
+        background: #f7f9fc;
+      }
+
+      /* Recent payments list */
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
       .item {
-        border:1px solid var(--line); background:#0f172a; border-radius:14px; padding:10px;
+        border: 1px solid var(--line);
+        background: #0f172a;
+        border-radius: 14px;
+        padding: 10px;
       }
-      body.light .item { background:#f7f9fc; }
-      .itemTop { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
-      .itemId { font-weight:700; font-size:12px; }
-      .itemMeta { color: var(--muted); font-size:12px; }
-      .itemBtns { display:flex; gap:8px; flex-wrap:wrap; }
-      .btn.sm { padding:7px 10px; border-radius:999px; font-size:12px; }
-      .kv { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
-      .kv .chip { font-size: 11px; padding:6px 10px; }
+
+      body.light .item {
+        background: #f7f9fc;
+      }
+
+      .itemTop {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .itemId {
+        font-weight: 700;
+        font-size: 12px;
+      }
+
+      .itemMeta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .itemBtns {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn.sm {
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      .kv {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+
+      .kv .chip {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
     </style>
   </head>
 
   <body>
     <div class="wrap">
-
-      <!-- ✅ NEW: topbar (doesn't touch your layout) -->
       <div class="topbar">
-        <div class="sub"><b>v1.1</b></div>
+        <div class="sub"><b>RTB</b> • stable</div>
         <div class="right">
           <span class="dot" id="themeDot" title="Theme"></span>
           <button class="iconbtn" id="themeToggle" type="button" title="Dark / Light">
@@ -115,21 +367,17 @@
           <div class="field">
             <label>Publishable key</label>
             <input id="pk" type="text" placeholder="pk_live_..." />
-            <div class="hint" style="margin-top:6px;">Saved locally in your browser. (No secret keys here.)</div>
+            <div class="hint" style="margin-top: 6px">
+              Saved locally in your browser. (No secret keys here.)
+            </div>
           </div>
 
           <div class="row">
-            <div class="field" style="flex:1; min-width: 160px;">
+            <div class="field" style="flex: 1; min-width: 160px">
               <label>Amount</label>
               <input id="amount" type="number" min="1" step="1" />
+              <div class="hint" style="margin-top: 6px">100 = 1.00 SAR</div>
             </div>
-
-<!--             <div class="field" style="flex:1; min-width: 140px;">
-              <label>Currency</label>
-              <select id="currency">
-                <option value="SAR">SAR</option>
-              </select>
-            </div> -->
           </div>
 
           <div class="field">
@@ -140,45 +388,41 @@
           <div class="field">
             <label>Methods</label>
             <div class="row">
-              <label class="toggle" style="flex:1;">
+              <label class="toggle" style="flex: 1">
                 <input id="mApplePay" type="checkbox" />
-                <div>
-                  <b>Apple Pay</b><br />
-                </div>
+                <div><b>Apple Pay</b></div>
               </label>
 
-              <label class="toggle" style="flex:1;">
+              <label class="toggle" style="flex: 1">
                 <input id="mCard" type="checkbox" />
-                <div>
-                  <b>Credit Card</b><br />
-                </div>
+                <div><b>Credit Card</b></div>
               </label>
-            </div>
-            <div class="hint" style="margin-top:6px;">
             </div>
           </div>
 
           <div class="field">
             <label>Supported Networks</label>
             <div class="chips" id="netChips"></div>
-            <div class="row" style="margin-top:10px;">
-              <label class="toggle" style="flex:1;">
+
+            <div class="row" style="margin-top: 10px">
+              <label class="toggle" style="flex: 1">
                 <input class="net" type="checkbox" value="mada" />
-                <div><b>mada</b><br /></div>
+                <div><b>mada</b></div>
               </label>
-              <label class="toggle" style="flex:1;">
+              <label class="toggle" style="flex: 1">
                 <input class="net" type="checkbox" value="visa" />
-                <div><b>visa</b><br /></div>
+                <div><b>visa</b></div>
               </label>
             </div>
-            <div class="row" style="margin-top:10px;">
-              <label class="toggle" style="flex:1;">
+
+            <div class="row" style="margin-top: 10px">
+              <label class="toggle" style="flex: 1">
                 <input class="net" type="checkbox" value="mastercard" />
-                <div><b>mastercard</b><br /></div>
+                <div><b>mastercard</b></div>
               </label>
-              <label class="toggle" style="flex:1;">
+              <label class="toggle" style="flex: 1">
                 <input class="net" type="checkbox" value="amex" />
-                <div><b>amex</b><br /></div>
+                <div><b>amex</b></div>
               </label>
             </div>
           </div>
@@ -186,20 +430,20 @@
           <div class="field">
             <label>Apple Pay</label>
             <div class="row">
-              <div class="field" style="flex:1; min-width: 140px; margin:0;">
+              <div class="field" style="flex: 1; min-width: 140px; margin: 0">
                 <label>Country</label>
                 <select id="apCountry">
                   <option value="SA">SA</option>
                 </select>
               </div>
-              <div class="field" style="flex:1; min-width: 160px; margin:0;">
+              <div class="field" style="flex: 1; min-width: 160px; margin: 0">
                 <label>Label</label>
                 <input id="apLabel" type="text" placeholder="Rami" />
               </div>
             </div>
 
-            <div class="row" style="margin-top:10px;">
-              <label class="toggle" style="flex:1;">
+            <div class="row" style="margin-top: 10px">
+              <label class="toggle" style="flex: 1">
                 <input id="manual" type="checkbox" />
                 <div>
                   <b>Manual</b><br />
@@ -207,19 +451,21 @@
                 </div>
               </label>
 
-              <label class="toggle" style="flex:1;">
+              <label class="toggle" style="flex: 1">
                 <input id="saveCard" type="checkbox" />
                 <div>
-                  <b>Save card</b><br /><span>tokenize if enabled</span>
+                  <b>Save card</b><br />
+                  <span>tokenize if enabled</span>
                 </div>
               </label>
             </div>
 
-            <div class="field" style="margin-top:10px; display:none;">
+            <div class="field" style="margin-top: 10px; display: none">
               <label>Validate merchant URL</label>
               <input id="validateUrl" type="text" />
-              <div class="hint" style="margin-top:6px;">
-                Should be: <span class="mono">https://api.moyasar.com/v1/applepay/initiate</span>
+              <div class="hint" style="margin-top: 6px">
+                Should be:
+                <span class="mono">https://api.moyasar.com/v1/applepay/initiate</span>
               </div>
             </div>
           </div>
@@ -227,44 +473,45 @@
           <div class="field">
             <label>Metadata</label>
             <div class="row">
-              <div style="flex:1; min-width: 160px;">
+              <div style="flex: 1; min-width: 160px">
                 <label>Key</label>
                 <input id="md1k" type="text" placeholder="order_id" />
               </div>
-              <div style="flex:1; min-width: 200px;">
+              <div style="flex: 1; min-width: 200px">
                 <label>Value</label>
                 <input id="md1v" type="text" placeholder="1995" />
               </div>
             </div>
+
             <div class="sp"></div>
+
             <div class="row">
-              <div style="flex:1; min-width: 160px;">
+              <div style="flex: 1; min-width: 160px">
                 <label>Key</label>
                 <input id="md2k" type="text" placeholder="testing" />
               </div>
-              <div style="flex:1; min-width: 200px;">
+              <div style="flex: 1; min-width: 200px">
                 <label>Value</label>
-                <input id="md2v" type="text" placeholder="Token+Reccuring" />
+                <input id="md2v" type="text" placeholder="Token+Recurring" />
               </div>
             </div>
           </div>
 
-          <div class="row" style="margin-top: 12px;">
-            <button class="btn primary" id="applyBtn" type="button">Apply + Re-init Form</button>
-            <button class="btn" id="clearBtn" type="button">Clear Saved (token/id)</button>
-          </div>
-
-          <div class="hint" style="margin-top:10px;">
-            The form is reinitialized every time you click “Apply”.
-            Values persist in your browser (localStorage) so you can refresh without losing config.
+          <div class="row" style="margin-top: 12px">
+            <button class="btn primary" id="applyBtn" type="button">
+              Apply + Re-init Form
+            </button>
+            <button class="btn" id="clearBtn" type="button">
+              Clear Saved (token/id)
+            </button>
           </div>
         </div>
 
-        <!-- Form + Output -->
+        <!-- Runner -->
         <div class="card">
           <h2>Runner</h2>
 
-          <div class="status" style="margin-bottom: 10px;">
+          <div class="status" style="margin-bottom: 10px">
             <span class="pill" id="apAvail">ApplePaySession: ?</span>
             <span class="pill" id="canPay">canMakePayments(): ?</span>
             <span class="pill" id="lastPid">Last payment id: —</span>
@@ -278,80 +525,78 @@
           <h2>Payment Object (on_completed)</h2>
           <pre id="result">Waiting…</pre>
 
-          <!-- ✅ NEW: error decode -->
           <div class="sp"></div>
           <h2>Error Decode</h2>
           <pre id="decode">—</pre>
 
           <div class="sp"></div>
-
           <h2>Saved Source (localStorage)</h2>
           <pre id="savedSource">—</pre>
 
           <div class="sp"></div>
 
           <h2>Admin Actions</h2>
-          <div class="hint" style="margin-bottom:10px;">
-            Capture / Refund / Void and Token payments require <b>secret key</b> → must go through a backend proxy.
+          <div class="hint" style="margin-bottom: 10px">
+            Capture / Refund / Void and Token payments require <b>secret key</b> → must go
+            through a backend proxy.
           </div>
 
           <div class="field">
             <label>Proxy Base URL</label>
             <input id="proxyBase" type="text" placeholder="https://api.ramiadam.com" />
-            <div class="hint" style="margin-top:6px;">
-              Saved locally. Do not put secret keys in public.
+            <div class="hint" style="margin-top: 6px">
+              Auto-filled. Saved locally. Do not put secret keys in public.
             </div>
           </div>
 
           <div class="row">
-            <div class="field" style="flex:1; min-width: 240px;">
+            <div class="field" style="flex: 1; min-width: 240px">
               <label>Payment ID</label>
               <input id="adminPid" type="text" placeholder="pay_..." />
-              <div class="hint" style="margin-top:6px;">Auto-filled from last payment id.</div>
+              <div class="hint" style="margin-top: 6px">
+                Auto-filled from last payment id.
+              </div>
             </div>
 
-            <div class="field" style="flex:1; min-width: 240px;">
+            <div class="field" style="flex: 1; min-width: 240px">
               <label>Token</label>
               <input id="adminToken" type="text" placeholder="token_..." />
-              <div class="hint" style="margin-top:6px;">Auto-filled from last saved source token (if present).</div>
+              <div class="hint" style="margin-top: 6px">
+                Auto-filled from last saved source token (if present).
+              </div>
             </div>
           </div>
-          
+
           <div class="row">
-            <div class="field" style="flex:1; min-width: 160px;">
+            <div class="field" style="flex: 1; min-width: 160px">
               <label>Admin Amount</label>
               <input id="adminAmount" type="number" min="1" step="1" />
-              <div class="hint" style="margin-top:6px;">Used for capture/refund/token payment.</div>
+              <div class="hint" style="margin-top: 6px">
+                Used for capture/refund/token payment.
+              </div>
             </div>
-
-            <!-- <div class="field" style="flex:1; min-width: 140px;">
-              <label>Admin Currency</label>
-              <select id="adminCurrency">
-                <option value="SAR">SAR</option>
-              </select>
-            </div> -->
           </div>
 
-          <div class="row" style="margin-top: 6px;">
+          <div class="row" style="margin-top: 6px">
             <button class="btn" id="btnAdminFetch" type="button">Fetch</button>
             <button class="btn" id="btnAdminCapture" type="button">Capture</button>
             <button class="btn" id="btnAdminRefund" type="button">Refund</button>
             <button class="btn" id="btnAdminVoid" type="button">Void</button>
-            <button class="btn primary" id="btnAdminTokenPay" type="button">Pay using Token</button>
+            <button class="btn primary" id="btnAdminTokenPay" type="button">
+              Pay using Token
+            </button>
           </div>
 
           <div class="sp"></div>
-
           <h2>Admin Output</h2>
           <pre id="adminOut">Ready…</pre>
 
-          <!-- ✅ NEW: Recent payments via worker -->
           <div class="sp"></div>
-          <div class="row" style="justify-content:space-between;">
-            <h2 style="margin:0;">Recent Payments (last 5 via Proxy)</h2>
+          <div class="row" style="justify-content: space-between">
+            <h2 style="margin: 0">Recent Payments (last 5 via Proxy)</h2>
             <button class="btn sm" id="btnRefreshRecent" type="button">Refresh</button>
           </div>
-          <div class="hint" style="margin:8px 0 10px;">
+          <div class="hint" style="margin: 8px 0 10px">
             Uses Proxy Base URL → GET <span class="mono">/payments?limit=5</span>
           </div>
           <div id="recentPayments" class="list"></div>
@@ -360,23 +605,22 @@
     </div>
 
     <script>
-      // ---------- storage keys ----------
+      const DEFAULT_VALIDATE_URL = "https://api.moyasar.com/v1/applepay/initiate";
+      const DEFAULT_PROXY_BASE = "https://api.ramiadam.com";
+
       const K = {
         cfg: "moyasar_ui_cfg_v1",
         pid: "moyasar_last_payment_id",
         tok: "moyasar_last_token",
         src: "moyasar_last_source",
-
         proxy: "moyasar_proxy_base_v1",
-
-        // ✅ NEW: theme
         theme: "rtb_theme_v1",
       };
 
-      // ---------- dom ----------
       const $ = (id) => document.getElementById(id);
 
-      const formMount = $("formMount");
+      // elements
+      let formMount = $("formMount");
       const resultEl = $("result");
       const decodeEl = $("decode");
       const savedSourceEl = $("savedSource");
@@ -395,7 +639,6 @@
       // inputs
       const pk = $("pk");
       const amount = $("amount");
-      const currency = $("currency"); // may be commented in HTML, so can be null
       const desc = $("desc");
       const mApplePay = $("mApplePay");
       const mCard = $("mCard");
@@ -404,29 +647,26 @@
       const apCountry = $("apCountry");
       const apLabel = $("apLabel");
       const validateUrl = $("validateUrl");
+
       const md1k = $("md1k");
       const md1v = $("md1v");
       const md2k = $("md2k");
       const md2v = $("md2v");
 
-      // admin inputs
+      // admin
       const proxyBaseInput = $("proxyBase");
       const adminPidInput = $("adminPid");
       const adminTokenInput = $("adminToken");
       const adminAmountInput = $("adminAmount");
-      const adminCurrencySel = $("adminCurrency"); // may be commented in HTML, so can be null
       const adminOut = $("adminOut");
 
       // recent payments
       const btnRefreshRecent = $("btnRefreshRecent");
       const recentPaymentsEl = $("recentPayments");
 
-      // networks (checkboxes with class net)
+      // networks
       const netBoxes = Array.from(document.querySelectorAll("input.net"));
 
-      const DEFAULT_VALIDATE_URL = "https://api.moyasar.com/v1/applepay/initiate";
-
-      // ---------- helpers ----------
       function safeJsonParse(s, fallback) {
         try { return JSON.parse(s); } catch { return fallback; }
       }
@@ -438,38 +678,6 @@
         if (ok === false) el.classList.add("bad");
       }
 
-      function readSavedState() {
-        const cfg = safeJsonParse(localStorage.getItem(K.cfg), null);
-        return cfg || {
-          publishable_key: "",
-          amount: 100,
-          currency: "SAR",
-          description: "Apple Pay Reccuring",
-          methods: { applepay: true, creditcard: true },
-          networks: ["mada", "visa", "mastercard", "amex"],
-          save_card: true,
-          apple_pay: {
-            country: "SA",
-            label: "Rami",
-            validate_merchant_url: DEFAULT_VALIDATE_URL,
-            manual: true,
-            save_card: true,
-          },
-          metadata: { scenario: "applepay_manual", tester: "rami" },
-        };
-      }
-
-      function writeSavedState(cfg) {
-        localStorage.setItem(K.cfg, JSON.stringify(cfg));
-      }
-
-      function readLast() {
-        const pid = localStorage.getItem(K.pid);
-        const tok = localStorage.getItem(K.tok);
-        const src = localStorage.getItem(K.src);
-        return { pid, tok, src };
-      }
-
       function renderChips(networks) {
         netChips.innerHTML = "";
         networks.forEach((n) => {
@@ -478,6 +686,14 @@
           d.textContent = n;
           netChips.appendChild(d);
         });
+      }
+
+      function readLast() {
+        return {
+          pid: localStorage.getItem(K.pid),
+          tok: localStorage.getItem(K.tok),
+          src: localStorage.getItem(K.src),
+        };
       }
 
       function updateSavedPanels() {
@@ -495,7 +711,7 @@
           try {
             const can = ApplePaySession.canMakePayments();
             setPill(canPayEl, "canMakePayments(): " + can, can);
-          } catch (e) {
+          } catch {
             setPill(canPayEl, "canMakePayments(): error", false);
           }
         } else {
@@ -505,28 +721,21 @@
 
       function buildMetadata() {
         const obj = {};
-        const k1 = md1k.value.trim();
-        const v1 = md1v.value.trim();
-        const k2 = md2k.value.trim();
-        const v2 = md2v.value.trim();
+        const k1 = (md1k.value || "").trim();
+        const v1 = (md1v.value || "").trim();
+        const k2 = (md2k.value || "").trim();
+        const v2 = (md2v.value || "").trim();
         if (k1) obj[k1] = v1;
         if (k2) obj[k2] = v2;
         return obj;
       }
 
-      // ✅ NEW: error decode
       function decodeFromPaymentLike(p) {
-        // p can be payment object OR error object (best effort)
         const src = p?.source || p?.payment?.source || p?.data?.source || null;
         const code = src?.response_code ?? p?.response_code ?? p?.responseCode ?? null;
         const msg = src?.response_message ?? p?.response_message ?? p?.responseMessage ?? null;
-
         if (!code && !msg) return "—";
-
-        return JSON.stringify({
-          response_code: code || null,
-          response_message: msg || null,
-        }, null, 2);
+        return JSON.stringify({ response_code: code || null, response_message: msg || null }, null, 2);
       }
 
       function updateDecode(p) {
@@ -534,39 +743,35 @@
         decodeEl.textContent = decodeFromPaymentLike(p);
       }
 
-      function collectConfigFromUI() {
-        const methods = [];
-        if (mApplePay.checked) methods.push("applepay");
-        if (mCard.checked) methods.push("creditcard");
-
-        const networks = netBoxes.filter(b => b.checked).map(b => b.value);
-
-        return {
-          publishable_key: pk.value.trim(),
-          amount: Math.max(1, parseInt(amount.value || "100", 10)),
-          currency: (currency?.value || "SAR"),
-          description: desc.value.trim() || "Apple Pay Test",
-          methods,
-          supported_networks: networks,
-          manual: manual.checked,
-
-          save_card: saveCard.checked,
-
+      function readSavedState() {
+        const cfg = safeJsonParse(localStorage.getItem(K.cfg), null);
+        return cfg || {
+          publishable_key: "",
+          amount: 100,
+          currency: "SAR",
+          description: "Apple Pay Test",
+          methods: ["applepay", "creditcard"],
+          supported_networks: ["mada", "visa", "mastercard", "amex"],
+          manual: true,
+          save_card: true,
           apple_pay: {
-            country: apCountry.value,
-            label: apLabel.value.trim() || "Rami",
+            country: "SA",
+            label: "Rami",
             validate_merchant_url: DEFAULT_VALIDATE_URL,
-            manual: manual.checked,
-            save_card: saveCard.checked,
+            manual: true,
+            save_card: true,
           },
-          metadata: buildMetadata(),
+          metadata: { scenario: "applepay_manual", tester: "rami" },
         };
+      }
+
+      function writeSavedState(cfg) {
+        localStorage.setItem(K.cfg, JSON.stringify(cfg));
       }
 
       function applyConfigToUI(cfg) {
         pk.value = cfg.publishable_key || "";
         amount.value = cfg.amount ?? 100;
-        if (currency) currency.value = cfg.currency || "SAR";
         desc.value = cfg.description || "Apple Pay Test";
 
         mApplePay.checked = cfg.methods?.includes("applepay") ?? true;
@@ -582,7 +787,7 @@
         if (validateUrl) validateUrl.value = DEFAULT_VALIDATE_URL;
 
         const networks = cfg.supported_networks || ["mada", "visa", "mastercard", "amex"];
-        netBoxes.forEach(b => b.checked = networks.includes(b.value));
+        netBoxes.forEach((b) => (b.checked = networks.includes(b.value)));
         renderChips(networks);
 
         const md = cfg.metadata || {};
@@ -593,11 +798,45 @@
         md2v.value = md[md2k.value] ?? (mdKeys[1] ? md[mdKeys[1]] : "rami");
       }
 
-      // ---------- init / re-init ----------
+      function collectConfigFromUI() {
+        const methods = [];
+        if (mApplePay.checked) methods.push("applepay");
+        if (mCard.checked) methods.push("creditcard");
+
+        const networks = netBoxes.filter((b) => b.checked).map((b) => b.value);
+
+        return {
+          publishable_key: (pk.value || "").trim(),
+          amount: Math.max(1, parseInt(amount.value || "100", 10)),
+          currency: "SAR",
+          description: (desc.value || "").trim() || "Apple Pay Test",
+          methods,
+          supported_networks: networks,
+          manual: manual.checked,
+          save_card: saveCard.checked,
+          apple_pay: {
+            country: apCountry.value,
+            label: (apLabel.value || "").trim() || "Rami",
+            validate_merchant_url: DEFAULT_VALIDATE_URL,
+            manual: manual.checked,
+            save_card: saveCard.checked,
+          },
+          metadata: buildMetadata(),
+        };
+      }
+
+      // ---------- THE FIX: clean remount each Apply ----------
       async function initForm(cfg) {
         resultEl.textContent = "Waiting…";
         updateDecode(null);
-        formMount.innerHTML = "";
+
+        // Force a clean remount every time (fixes: Apply then widget not showing until refresh)
+        const old = document.getElementById("formMount");
+        const fresh = document.createElement("div");
+        fresh.id = "formMount";
+        old.parentNode.replaceChild(fresh, old);
+        formMount = fresh;
+
         setApplePayAvailabilityPills();
 
         if (!window.Moyasar) {
@@ -609,124 +848,97 @@
           resultEl.textContent = "⚠️ Enter a valid publishable key (pk_...) then click Apply.";
           return;
         }
+
         if (!cfg.apple_pay?.validate_merchant_url) {
           resultEl.textContent = "⚠️ validate_merchant_url is required for Apple Pay.";
           return;
         }
+
         if (!cfg.methods?.length) {
           resultEl.textContent = "⚠️ Select at least one method (Apple Pay / Credit Card).";
           return;
         }
+
         if (!cfg.supported_networks?.length) {
           resultEl.textContent = "⚠️ Select at least one supported network.";
           return;
         }
 
         const globalSaveCard =
-          (typeof cfg.save_card === "boolean") ? cfg.save_card : !!cfg.apple_pay?.save_card;
+          typeof cfg.save_card === "boolean" ? cfg.save_card : !!cfg.apple_pay?.save_card;
 
-        Moyasar.init({
-          element: "#formMount",
-          amount: cfg.amount,
-          currency: cfg.currency,
-          description: cfg.description,
-          publishable_api_key: cfg.publishable_key,
-          callback_url: new URL("thanks.html", window.location.href).toString(),
-          methods: cfg.methods,
+        try {
+          Moyasar.init({
+            element: "#formMount",
+            amount: cfg.amount,
+            currency: cfg.currency,
+            description: cfg.description,
+            publishable_api_key: cfg.publishable_key,
+            callback_url: new URL("thanks.html", window.location.href).toString(),
+            methods: cfg.methods,
 
-          manual: cfg.manual,
-          supported_networks: cfg.supported_networks,
-
-          credit_card: {
-            save_card: globalSaveCard,
             manual: cfg.manual,
-          },
+            supported_networks: cfg.supported_networks,
 
-          apple_pay: {
-            country: cfg.apple_pay.country,
-            label: cfg.apple_pay.label,
-            validate_merchant_url: cfg.apple_pay.validate_merchant_url,
-            manual: cfg.apple_pay.manual,
-            save_card: globalSaveCard,
-          },
+            credit_card: {
+              save_card: globalSaveCard,
+              manual: cfg.manual,
+            },
 
-          metadata: cfg.metadata,
+            apple_pay: {
+              country: cfg.apple_pay.country,
+              label: cfg.apple_pay.label,
+              validate_merchant_url: cfg.apple_pay.validate_merchant_url,
+              manual: cfg.apple_pay.manual,
+              save_card: globalSaveCard,
+            },
 
-          on_completed: async function (payment) {
-            resultEl.textContent = JSON.stringify(payment, null, 2);
-            updateDecode(payment);
+            metadata: cfg.metadata,
 
-            if (payment?.id) localStorage.setItem(K.pid, payment.id);
-            localStorage.setItem(K.src, JSON.stringify(payment?.source || null));
+            on_completed: async function (payment) {
+              resultEl.textContent = JSON.stringify(payment, null, 2);
+              updateDecode(payment);
 
-            const token = payment?.source?.token;
-            if (token) localStorage.setItem(K.tok, token);
-            else localStorage.removeItem(K.tok);
+              if (payment?.id) localStorage.setItem(K.pid, payment.id);
+              localStorage.setItem(K.src, JSON.stringify(payment?.source || null));
 
-            updateSavedPanels();
-            syncAdminDefaults();
-            return payment;
-          },
+              const token = payment?.source?.token;
+              if (token) localStorage.setItem(K.tok, token);
+              else localStorage.removeItem(K.tok);
 
-          on_failure: async function (error) {
-            resultEl.textContent =
-              "FAILED:\n" + (typeof error === "string" ? error : JSON.stringify(error, null, 2));
-            updateDecode(error);
-            return error;
-          },
-        });
+              updateSavedPanels();
+              syncAdminDefaults();
+              return payment;
+            },
+
+            on_failure: async function (error) {
+              resultEl.textContent =
+                "FAILED:\n" +
+                (typeof error === "string" ? error : JSON.stringify(error, null, 2));
+              updateDecode(error);
+              return error;
+            },
+          });
+        } catch (e) {
+          resultEl.textContent =
+            "❌ Moyasar.init error:\n" + (e?.stack || e?.message || String(e));
+        }
 
         updateSavedPanels();
         syncAdminDefaults();
       }
 
-      // ---------- events ----------
-      $("applyBtn").addEventListener("click", async () => {
-        const cfg = collectConfigFromUI();
-        writeSavedState(cfg);
-        renderChips(cfg.supported_networks);
-        await initForm(cfg);
-      });
-
-      $("clearBtn").addEventListener("click", () => {
-        localStorage.removeItem(K.pid);
-        localStorage.removeItem(K.tok);
-        localStorage.removeItem(K.src);
-        updateSavedPanels();
-        syncAdminDefaults();
-        resultEl.textContent = "Cleared saved payment id/token/source.";
-        updateDecode(null);
-      });
-
-      netBoxes.forEach(b => b.addEventListener("change", () => {
-        const nets = netBoxes.filter(x => x.checked).map(x => x.value);
-        renderChips(nets);
-      }));
-
-      // =========================
-      // Admin Panel Logic
-      // =========================
-      function setAdminOut(data) {
-        if (!adminOut) return;
-        adminOut.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
-      }
-
+      // ---------- Proxy ----------
       function getProxyBase() {
-        const v = (proxyBaseInput?.value || "").trim().replace(/\/+$/, "");
-        return v;
+        return (proxyBaseInput?.value || "").trim().replace(/\/+$/, "");
       }
 
       function loadProxyBase() {
         const saved = localStorage.getItem(K.proxy);
-        const defaultProxy = "https://api.ramiadam.com";
+        const v = saved || DEFAULT_PROXY_BASE;
 
-        if (proxyBaseInput) {
-          proxyBaseInput.value = saved || defaultProxy;
-        }
-
-        if (!saved) {
-          localStorage.setItem(K.proxy, defaultProxy);
-        }
+        if (proxyBaseInput) proxyBaseInput.value = v;
+        if (!saved) localStorage.setItem(K.proxy, v);
       }
 
       function saveProxyBase() {
@@ -744,16 +956,20 @@
         if (adminTokenInput && (!adminTokenInput.value || adminTokenInput.value === "—")) {
           adminTokenInput.value = tok || "";
         }
+        if (adminAmountInput && !adminAmountInput.value) {
+          adminAmountInput.value = amount?.value || "100";
+        }
+      }
 
-        if (adminAmountInput && !adminAmountInput.value) adminAmountInput.value = amount?.value || "100";
-        if (adminCurrencySel && currency) adminCurrencySel.value = currency.value || "SAR";
+      function setAdminOut(data) {
+        adminOut.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
       }
 
       async function adminCall(path, { method = "POST", body = null } = {}) {
         const base = getProxyBase();
         if (!base || !base.startsWith("http")) {
-          setAdminOut("⚠️ Set Proxy Base URL first (Cloudflare Worker), then try again.");
-          return;
+          setAdminOut("⚠️ Proxy Base URL is missing.");
+          return null;
         }
 
         setAdminOut("Loading…");
@@ -775,12 +991,12 @@
         }
       }
 
+      // Admin buttons
       $("btnAdminFetch")?.addEventListener("click", async () => {
         saveProxyBase();
         const pid = (adminPidInput?.value || "").trim();
         if (!pid) return setAdminOut("Enter Payment ID first.");
         const data = await adminCall(`/payments/${encodeURIComponent(pid)}`, { method: "GET" });
-        // decode from fetched payment too
         if (data) updateDecode(data);
       });
 
@@ -789,7 +1005,10 @@
         const pid = (adminPidInput?.value || "").trim();
         const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
         if (!pid) return setAdminOut("Enter Payment ID first.");
-        await adminCall(`/payments/${encodeURIComponent(pid)}/capture`, { method: "POST", body: { amount: amt } });
+        await adminCall(`/payments/${encodeURIComponent(pid)}/capture`, {
+          method: "POST",
+          body: { amount: amt },
+        });
       });
 
       $("btnAdminRefund")?.addEventListener("click", async () => {
@@ -797,7 +1016,10 @@
         const pid = (adminPidInput?.value || "").trim();
         const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
         if (!pid) return setAdminOut("Enter Payment ID first.");
-        await adminCall(`/payments/${encodeURIComponent(pid)}/refund`, { method: "POST", body: { amount: amt } });
+        await adminCall(`/payments/${encodeURIComponent(pid)}/refund`, {
+          method: "POST",
+          body: { amount: amt },
+        });
       });
 
       $("btnAdminVoid")?.addEventListener("click", async () => {
@@ -811,14 +1033,13 @@
         saveProxyBase();
         const tok = (adminTokenInput?.value || "").trim();
         const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
-        const cur = (adminCurrencySel?.value || currency?.value || "SAR");
         if (!tok) return setAdminOut("Enter Token first.");
 
         await adminCall(`/payments/token`, {
           method: "POST",
           body: {
             amount: amt,
-            currency: cur,
+            currency: "SAR",
             description: "Token payment from Test Harness",
             callback_url: new URL("thanks.html", window.location.href).toString(),
             source: { type: "token", token: tok, "3ds": true, manual: false },
@@ -830,14 +1051,7 @@
       proxyBaseInput?.addEventListener("change", saveProxyBase);
       proxyBaseInput?.addEventListener("blur", saveProxyBase);
 
-      // =========================
-      // ✅ Recent Payments (last 5)
-      // =========================
-      function formatAmountHalalas(a) {
-        if (typeof a !== "number") return "—";
-        return `${a} (≈ ${(a/100).toFixed(2)} SAR)`;
-      }
-
+      // ---------- Recent payments (last 5 via worker) ----------
       function pickPaymentsArray(data) {
         if (!data) return [];
         if (Array.isArray(data)) return data;
@@ -846,12 +1060,17 @@
         return [];
       }
 
+      function formatAmountHalalas(a) {
+        if (typeof a !== "number") return "—";
+        return `${a} (≈ ${(a / 100).toFixed(2)} SAR)`;
+      }
+
       function renderRecentPayments(payments) {
-        if (!recentPaymentsEl) return;
         recentPaymentsEl.innerHTML = "";
 
         if (!payments.length) {
-          recentPaymentsEl.innerHTML = `<div class="hint">No payments returned. (Worker endpoint might not be implemented yet.)</div>`;
+          recentPaymentsEl.innerHTML =
+            `<div class="hint">No payments returned. Make sure your worker supports <span class="mono">GET /payments?limit=5</span>.</div>`;
           return;
         }
 
@@ -859,8 +1078,10 @@
           const id = p?.id || "—";
           const status = p?.status || "—";
           const amt = p?.amount;
-          const created = p?.created_at ? new Date(p.created_at * 1000).toLocaleString() : (p?.created_at || "—");
-          const srcType = p?.source?.type || p?.source?.company || p?.source?.name || (p?.source ? "source" : "—");
+          const created = p?.created_at
+            ? new Date(p.created_at * 1000).toLocaleString()
+            : (p?.created_at || "—");
+          const srcType = p?.source?.type || (p?.source ? "source" : "—");
           const rcode = p?.source?.response_code ?? "—";
           const rmsg = p?.source?.response_message ?? "—";
 
@@ -879,24 +1100,23 @@
             </div>
             <div class="kv">
               <div class="chip">response_code: <span class="mono">${rcode}</span></div>
-              <div class="chip">response_message: <span class="mono">${String(rmsg).slice(0, 120)}</span></div>
+              <div class="chip">response_message: <span class="mono">${String(rmsg).slice(0, 140)}</span></div>
             </div>
           `;
           recentPaymentsEl.appendChild(div);
         });
 
-        // bind buttons
         recentPaymentsEl.querySelectorAll("button[data-use]").forEach((b) => {
           b.addEventListener("click", () => {
             const id = b.getAttribute("data-use");
-            if (adminPidInput) adminPidInput.value = id;
+            adminPidInput.value = id;
           });
         });
 
         recentPaymentsEl.querySelectorAll("button[data-fetch]").forEach((b) => {
           b.addEventListener("click", async () => {
             const id = b.getAttribute("data-fetch");
-            if (adminPidInput) adminPidInput.value = id;
+            adminPidInput.value = id;
             const data = await adminCall(`/payments/${encodeURIComponent(id)}`, { method: "GET" });
             if (data) updateDecode(data);
           });
@@ -907,14 +1127,11 @@
         saveProxyBase();
         const base = getProxyBase();
         if (!base || !base.startsWith("http")) {
-          renderRecentPayments([]);
-          if (recentPaymentsEl) {
-            recentPaymentsEl.innerHTML = `<div class="hint">Set Proxy Base URL first, then click Refresh.</div>`;
-          }
+          recentPaymentsEl.innerHTML = `<div class="hint">Proxy Base URL is missing.</div>`;
           return;
         }
 
-        if (recentPaymentsEl) recentPaymentsEl.innerHTML = `<div class="hint">Loading…</div>`;
+        recentPaymentsEl.innerHTML = `<div class="hint">Loading…</div>`;
         const res = await fetch(base + `/payments?limit=5`, { method: "GET" });
         const text = await res.text();
 
@@ -927,14 +1144,12 @@
 
       btnRefreshRecent?.addEventListener("click", refreshRecentPayments);
 
-      // =========================
-      // ✅ Theme
-      // =========================
+      // ---------- Theme ----------
       function applyTheme(mode) {
         document.body.classList.toggle("light", mode === "light");
-        if (themeIcon) themeIcon.textContent = (mode === "light") ? "☀️" : "🌙";
-        if (themeLabel) themeLabel.textContent = (mode === "light") ? "Light" : "Dark";
-        if (themeDot) themeDot.style.background = (mode === "light") ? "#f59e0b" : "#60a5fa";
+        themeIcon.textContent = mode === "light" ? "☀️" : "🌙";
+        themeLabel.textContent = mode === "light" ? "Light" : "Dark";
+        themeDot.style.background = mode === "light" ? "#f59e0b" : "#60a5fa";
       }
 
       function getTheme() {
@@ -951,18 +1166,41 @@
         setTheme(cur === "light" ? "dark" : "light");
       });
 
-      // ---------- boot ----------
+      // ---------- Boot ----------
+      $("applyBtn").addEventListener("click", async () => {
+        const cfg = collectConfigFromUI();
+        writeSavedState(cfg);
+        renderChips(cfg.supported_networks);
+        await initForm(cfg);
+      });
+
+      $("clearBtn").addEventListener("click", () => {
+        localStorage.removeItem(K.pid);
+        localStorage.removeItem(K.tok);
+        localStorage.removeItem(K.src);
+        updateSavedPanels();
+        syncAdminDefaults();
+        resultEl.textContent = "Cleared saved payment id/token/source.";
+        updateDecode(null);
+      });
+
+      netBoxes.forEach((b) =>
+        b.addEventListener("change", () => {
+          const nets = netBoxes.filter((x) => x.checked).map((x) => x.value);
+          renderChips(nets);
+        })
+      );
+
       (async () => {
-        // apply theme early
         applyTheme(getTheme());
 
         const cfg = readSavedState();
 
-        cfg.methods = cfg.methods || (cfg.methods?.applepay ? ["applepay"] : ["creditcard"]);
-        if (cfg.methods?.applepay || cfg.methods?.creditcard) {
+        // normalize
+        if (!Array.isArray(cfg.methods)) {
           cfg.methods = [];
-          if (cfg.methods.applepay) cfg.methods.push("applepay");
-          if (cfg.methods.creditcard) cfg.methods.push("creditcard");
+          if (cfg.methods?.applepay) cfg.methods.push("applepay");
+          if (cfg.methods?.creditcard) cfg.methods.push("creditcard");
         }
         cfg.supported_networks = cfg.supported_networks || ["mada", "visa", "mastercard", "amex"];
         cfg.apple_pay = cfg.apple_pay || {
@@ -972,11 +1210,7 @@
           manual: true,
           save_card: true,
         };
-
-        if (typeof cfg.save_card !== "boolean") {
-          cfg.save_card = !!cfg.apple_pay?.save_card;
-        }
-        cfg.apple_pay.save_card = cfg.save_card;
+        if (typeof cfg.save_card !== "boolean") cfg.save_card = !!cfg.apple_pay?.save_card;
 
         applyConfigToUI(cfg);
         writeSavedState(collectConfigFromUI());
@@ -984,11 +1218,9 @@
         syncAdminDefaults();
         await initForm(collectConfigFromUI());
 
-        // optional: auto refresh recent list on load if proxy is set
+        // auto refresh if proxy exists
         loadProxyBase();
-        if (getProxyBase()) {
-          refreshRecentPayments().catch(() => {});
-        }
+        if (getProxyBase()) refreshRecentPayments().catch(() => {});
       })();
     </script>
   </body>
