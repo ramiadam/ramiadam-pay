@@ -371,7 +371,6 @@
       </div>
 
       <h1>RTB - Rami's Test Bench 🚀</h1>
-      <div class="sub"></div>
 
       <div class="grid">
         <!-- Controls -->
@@ -382,7 +381,15 @@
             <label>Publishable key</label>
             <input id="pk" type="text" placeholder="pk_live_..." />
             <div class="hint" style="margin-top: 6px">
-              Saved locally in your browser. (No secret keys here.)
+              Saved locally in your browser.
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Secret key</label>
+            <input id="sk" type="password" placeholder="sk_live_..." autocomplete="off" />
+            <div class="hint" style="margin-top: 6px">
+              Stored in sessionStorage — cleared when the tab is closed. Never saved permanently.
             </div>
           </div>
 
@@ -444,12 +451,6 @@
           <div class="field">
             <label>Apple Pay</label>
             <div class="row">
-              <div class="field" style="flex: 1; min-width: 140px; margin: 0">
-                <label>Country</label>
-                <select id="apCountry">
-                  <option value="SA">SA</option>
-                </select>
-              </div>
               <div class="field" style="flex: 1; min-width: 160px; margin: 0">
                 <label>Label</label>
                 <input id="apLabel" type="text" placeholder="Rami" />
@@ -474,14 +475,6 @@
               </label>
             </div>
 
-            <div class="field" style="margin-top: 10px; display: none">
-              <label>Validate merchant URL</label>
-              <input id="validateUrl" type="text" />
-              <div class="hint" style="margin-top: 6px">
-                Should be:
-                <span class="mono">https://api.moyasar.com/v1/applepay/initiate</span>
-              </div>
-            </div>
           </div>
 
           <div class="field">
@@ -551,16 +544,7 @@
 
           <h2>Admin Actions</h2>
           <div class="hint" style="margin-bottom: 10px">
-            Capture / Refund / Void and Token payments require <b>secret key</b> → must go
-            through a backend proxy.
-          </div>
-
-          <div class="field">
-            <label>Proxy Base URL</label>
-            <input id="proxyBase" type="text" placeholder="https://api.ramiadam.com" />
-            <div class="hint" style="margin-top: 6px">
-              Auto-filled. Saved locally. Do not put secret keys in public.
-            </div>
+            Capture / Refund / Void and Token payments use your secret key directly via the Moyasar API.
           </div>
 
           <div class="row">
@@ -610,9 +594,6 @@
             <h2 style="margin: 0">Recent Payments</h2>
             <button class="btn sm" id="btnRefreshRecent" type="button">Refresh</button>
           </div>
-          <div class="hint" style="margin:8px 0 10px;">
-            <span class="mono"></span>
-          </div>
           <div id="recentPayments" class="list"></div>
         </div>
       </div>
@@ -625,16 +606,17 @@
 
     <script>
       const DEFAULT_VALIDATE_URL = "https://api.moyasar.com/v1/applepay/initiate";
-      const DEFAULT_PROXY_BASE = "https://api.ramiadam.com";
 
       const K = {
         cfg: "moyasar_ui_cfg_v1",
         pid: "moyasar_last_payment_id",
         tok: "moyasar_last_token",
         src: "moyasar_last_source",
-        proxy: "moyasar_proxy_base_v1",
         theme: "rtb_theme_v1",
       };
+
+      const SK_KEY = "moyasar_sk";
+      const MOYASAR_API = "https://api.moyasar.com/v1";
 
       const $ = (id) => document.getElementById(id);
 
@@ -657,15 +639,14 @@
 
       // inputs
       const pk = $("pk");
+      const sk = $("sk");
       const amount = $("amount");
       const desc = $("desc");
       const mApplePay = $("mApplePay");
       const mCard = $("mCard");
       const manual = $("manual");
       const saveCard = $("saveCard");
-      const apCountry = $("apCountry");
       const apLabel = $("apLabel");
-      const validateUrl = $("validateUrl");
 
       const md1k = $("md1k");
       const md1v = $("md1v");
@@ -673,7 +654,6 @@
       const md2v = $("md2v");
 
       // admin
-      const proxyBaseInput = $("proxyBase");
       const adminPidInput = $("adminPid");
       const adminTokenInput = $("adminToken");
       const adminAmountInput = $("adminAmount");
@@ -801,9 +781,7 @@
         const sc = (typeof cfg.save_card === "boolean") ? cfg.save_card : !!cfg.apple_pay?.save_card;
         saveCard.checked = sc;
 
-        apCountry.value = cfg.apple_pay?.country || "SA";
         apLabel.value = cfg.apple_pay?.label || "Rami";
-        if (validateUrl) validateUrl.value = DEFAULT_VALIDATE_URL;
 
         const networks = cfg.supported_networks || ["mada", "visa", "mastercard", "amex"];
         netBoxes.forEach((b) => (b.checked = networks.includes(b.value)));
@@ -812,9 +790,9 @@
         const md = cfg.metadata || {};
         const mdKeys = Object.keys(md);
         md1k.value = mdKeys[0] || "scenario";
-        md1v.value = md[md1k.value] ?? (mdKeys[0] ? md[mdKeys[0]] : "applepay_manual");
+        md1v.value = md[mdKeys[0]] ?? "applepay_manual";
         md2k.value = mdKeys[1] || "tester";
-        md2v.value = md[md2k.value] ?? (mdKeys[1] ? md[mdKeys[1]] : "rami");
+        md2v.value = md[mdKeys[1]] ?? "rami";
       }
 
       function collectConfigFromUI() {
@@ -834,7 +812,7 @@
           manual: manual.checked,
           save_card: saveCard.checked,
           apple_pay: {
-            country: apCountry.value,
+            country: "SA",
             label: (apLabel.value || "").trim() || "Rami",
             validate_merchant_url: DEFAULT_VALIDATE_URL,
             manual: manual.checked,
@@ -867,7 +845,7 @@
           return;
         }
 
-        if (!cfg.apple_pay?.validate_merchant_url) {
+        if (cfg.methods.includes("applepay") && !cfg.apple_pay?.validate_merchant_url) {
           resultEl.textContent = "⚠️ validate_merchant_url is required for Apple Pay.";
           return;
         }
@@ -947,26 +925,17 @@
         syncAdminDefaults();
       }
 
-      // Proxy
-      function getProxyBase() {
-        return (proxyBaseInput?.value || "").trim().replace(/\/+$/, "");
+      // Secret key helpers
+      function getSecretKey() {
+        return sessionStorage.getItem(SK_KEY) || "";
       }
 
-      function loadProxyBase() {
-        const saved = localStorage.getItem(K.proxy);
-        const v = saved || DEFAULT_PROXY_BASE;
-
-        if (proxyBaseInput) proxyBaseInput.value = v;
-        if (!saved) localStorage.setItem(K.proxy, v);
-      }
-
-      function saveProxyBase() {
-        const v = getProxyBase();
-        if (v) localStorage.setItem(K.proxy, v);
+      function saveSecretKey(val) {
+        if (val) sessionStorage.setItem(SK_KEY, val);
+        else sessionStorage.removeItem(SK_KEY);
       }
 
       function syncAdminDefaults() {
-        loadProxyBase();
         const { pid, tok } = readLast();
 
         if (adminPidInput && (!adminPidInput.value || adminPidInput.value === "—")) {
@@ -984,35 +953,46 @@
         adminOut.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
       }
 
+      function buildAuthHeader() {
+        return "Basic " + btoa(getSecretKey() + ":");
+      }
+
       async function adminCall(path, { method = "POST", body = null } = {}) {
-        const base = getProxyBase();
-        if (!base || !base.startsWith("http")) {
-          setAdminOut("⚠️ Proxy Base URL is missing.");
+        const skVal = getSecretKey();
+        if (!skVal) {
+          setAdminOut("⚠️ Enter your secret key first.");
           return null;
         }
 
         setAdminOut("Loading…");
 
-        const res = await fetch(base + path, {
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: body ? JSON.stringify(body) : undefined,
-        });
-
-        const text = await res.text();
         try {
-          const json = JSON.parse(text);
-          setAdminOut(json);
-          return json;
-        } catch {
-          setAdminOut(text);
-          return text;
+          const res = await fetch(MOYASAR_API + path, {
+            method,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": buildAuthHeader(),
+            },
+            body: body ? JSON.stringify(body) : undefined,
+          });
+
+          const text = await res.text();
+          try {
+            const json = JSON.parse(text);
+            setAdminOut(json);
+            return json;
+          } catch {
+            setAdminOut(text);
+            return text;
+          }
+        } catch (e) {
+          setAdminOut("❌ Network error: " + (e?.message || String(e)));
+          return null;
         }
       }
 
       // Admin buttons
       $("btnAdminFetch")?.addEventListener("click", async () => {
-        saveProxyBase();
         const pid = (adminPidInput?.value || "").trim();
         if (!pid) return setAdminOut("Enter Payment ID first.");
         const data = await adminCall(`/payments/${encodeURIComponent(pid)}`, { method: "GET" });
@@ -1020,7 +1000,6 @@
       });
 
       $("btnAdminCapture")?.addEventListener("click", async () => {
-        saveProxyBase();
         const pid = (adminPidInput?.value || "").trim();
         const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
         if (!pid) return setAdminOut("Enter Payment ID first.");
@@ -1031,7 +1010,6 @@
       });
 
       $("btnAdminRefund")?.addEventListener("click", async () => {
-        saveProxyBase();
         const pid = (adminPidInput?.value || "").trim();
         const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
         if (!pid) return setAdminOut("Enter Payment ID first.");
@@ -1042,14 +1020,12 @@
       });
 
       $("btnAdminVoid")?.addEventListener("click", async () => {
-        saveProxyBase();
         const pid = (adminPidInput?.value || "").trim();
         if (!pid) return setAdminOut("Enter Payment ID first.");
         await adminCall(`/payments/${encodeURIComponent(pid)}/void`, { method: "POST", body: {} });
       });
 
       $("btnAdminTokenPay")?.addEventListener("click", async () => {
-        saveProxyBase();
         const tok = (adminTokenInput?.value || "").trim();
         const amt = Math.max(1, parseInt(adminAmountInput?.value || "0", 10));
         if (!tok) return setAdminOut("Enter Token first.");
@@ -1066,9 +1042,6 @@
           },
         });
       });
-
-      proxyBaseInput?.addEventListener("change", saveProxyBase);
-      proxyBaseInput?.addEventListener("blur", saveProxyBase);
 
       // Recent payments (last 5 via worker)
       function pickPaymentsArray(data) {
@@ -1152,22 +1125,29 @@
       }
 
       async function refreshRecentPayments() {
-        saveProxyBase();
-        const base = getProxyBase();
-        if (!base || !base.startsWith("http")) {
-          recentPaymentsEl.innerHTML = `<div class="hint">Proxy Base URL is missing.</div>`;
+        const skVal = getSecretKey();
+        if (!skVal) {
+          recentPaymentsEl.innerHTML = `<div class="hint">Enter your secret key and click Apply first.</div>`;
           return;
         }
 
         recentPaymentsEl.innerHTML = `<div class="hint">Loading…</div>`;
-        const res = await fetch(base + `/payments?limit=5`, { method: "GET" });
-        const text = await res.text();
 
-        let data = null;
-        try { data = JSON.parse(text); } catch { data = null; }
+        try {
+          const res = await fetch(MOYASAR_API + `/payments?limit=5`, {
+            method: "GET",
+            headers: { "Authorization": buildAuthHeader() },
+          });
+          const text = await res.text();
 
-        const arr = pickPaymentsArray(data);
-        renderRecentPayments(arr);
+          let data = null;
+          try { data = JSON.parse(text); } catch { data = null; }
+
+          const arr = pickPaymentsArray(data);
+          renderRecentPayments(arr);
+        } catch (e) {
+          recentPaymentsEl.innerHTML = `<div class="hint">❌ Network error: ${e?.message || String(e)}</div>`;
+        }
       }
 
       btnRefreshRecent?.addEventListener("click", refreshRecentPayments);
@@ -1196,6 +1176,7 @@
 
       // Boot
       $("applyBtn").addEventListener("click", async () => {
+        saveSecretKey((sk.value || "").trim());
         const cfg = collectConfigFromUI();
         writeSavedState(cfg);
         renderChips(cfg.supported_networks);
@@ -1222,6 +1203,10 @@
       (async () => {
         applyTheme(getTheme());
 
+        // Restore secret key from sessionStorage
+        const savedSk = getSecretKey();
+        if (savedSk) sk.value = savedSk;
+
         const cfg = readSavedState();
 
         cfg.supported_networks = cfg.supported_networks || ["mada", "visa", "mastercard", "amex"];
@@ -1240,8 +1225,7 @@
         syncAdminDefaults();
         await initForm(collectConfigFromUI());
 
-        loadProxyBase();
-        if (getProxyBase()) refreshRecentPayments().catch(() => {});
+        if (getSecretKey()) refreshRecentPayments().catch(() => {});
 
         // ✅ footer year
         const y = document.getElementById("year");
