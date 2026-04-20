@@ -1,0 +1,19 @@
+.annotation {
+  background: var(--muted-bg);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.annotation code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+  background: var(--pre-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text);
+}

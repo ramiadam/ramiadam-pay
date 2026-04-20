@@ -1,0 +1,18 @@
+.wrap {
+  position: relative;
+  min-height: 80px;
+}
+
+.status {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px 0;
+}
+
+.error {
+  color: #fca5a5;
+}
+
+.mount {
+  /* The MPF injects its DOM here */
+}

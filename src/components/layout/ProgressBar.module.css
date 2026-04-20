@@ -1,0 +1,89 @@
+.progressBar {
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 24px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: max-content;
+  margin: 0 auto;
+  max-width: 900px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stepBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: none;
+  cursor: default;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.stepBtn.clickable {
+  cursor: pointer;
+}
+
+.stepBtn.clickable:hover {
+  background: var(--muted-bg);
+}
+
+.stepBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.stepBtn.current .dot {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.stepBtn.done .dot {
+  border-color: #16a34a;
+  background: #16a34a;
+  color: #fff;
+}
+
+.connector {
+  width: 20px;
+  height: 2px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+
+.connector.done {
+  background: #16a34a;
+}

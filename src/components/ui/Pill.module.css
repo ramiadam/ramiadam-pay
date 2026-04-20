@@ -1,0 +1,26 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  background: var(--muted-bg);
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.ok {
+  border-color: rgba(22, 163, 74, 0.4);
+  color: #86efac;
+}
+
+.bad {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.warn {
+  border-color: rgba(234, 179, 8, 0.4);
+  color: #fde047;
+}

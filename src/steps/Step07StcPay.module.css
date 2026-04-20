@@ -1,0 +1,30 @@
+.phoneFmt {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 5px;
+}
+
+.complete {
+  text-align: center;
+  padding: 32px 0 16px;
+}
+
+.completeIcon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.completeTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+
+.completeSub {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto 24px;
+}
