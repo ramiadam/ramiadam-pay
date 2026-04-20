@@ -28,7 +28,7 @@ export const DEFAULT_CONFIG = {
   apple_pay: {
     country: 'SA',
     label: 'My Store',
-    validate_merchant_url: DEFAULT_VALIDATE_URL,
+    merchant_validation_url: DEFAULT_VALIDATE_URL,
     manual: false,
     save_card: false,
   },
