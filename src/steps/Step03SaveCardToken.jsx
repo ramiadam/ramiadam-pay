@@ -174,6 +174,8 @@ export function Step03SaveCardToken({ config, updateConfig, secretKey, result, s
             </Annotation>
           )}
 
+          {isLearn && <CodeSnippet label="Phase 2 — token pay request body" code={PHASE2_CODE} />}
+
           <AmountField value={tokenAmount} onChange={setTokenAmount} id="tok-amount" />
 
           <div className="field">
@@ -210,8 +212,6 @@ export function Step03SaveCardToken({ config, updateConfig, secretKey, result, s
           </button>
 
           {!secretKey && <div className="hint">Secret key required for token payments.</div>}
-
-          {isLearn && <CodeSnippet label="Phase 2 — token pay request body" code={PHASE2_CODE} />}
 
           {tokenOutput && <JsonDisplay data={tokenOutput} label="Token payment response" />}
         </div>
