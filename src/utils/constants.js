@@ -32,19 +32,28 @@ export const DEFAULT_CONFIG = {
 };
 
 export const WIZARD_STEPS = [
-  { id: 'welcome',        label: 'Welcome' },
-  { id: 'api-keys',       label: 'API Keys' },
-  { id: 'card-payment',   label: 'Card Payment' },
-  { id: 'apple-pay',      label: 'Apple Pay' },
-  { id: 'authorize-only', label: 'Authorize Only' },
-  { id: 'save-card',      label: 'Save Card & Token Pay' },
-  { id: 'samsung-pay',    label: 'Samsung Pay' },
-  { id: 'stc-pay',        label: 'STC Pay' },
+  { id: 'welcome',         label: 'Welcome' },
+  { id: 'api-keys',        label: 'API Keys' },
+  { id: 'card-payment',    label: 'Card Payment' },
+  { id: 'save-card-token', label: 'Save Card & Token' },
+  { id: 'authorize-only',  label: 'Authorize + Capture' },
+  { id: 'apple-pay',       label: 'Apple Pay' },
+  { id: 'samsung-pay',     label: 'Samsung Pay' },
+  { id: 'stc-pay',         label: 'STC Pay' },
+  { id: 'done',            label: 'Done' },
 ];
 
 export const TEST_CARDS = [
-  { network: 'Mada',       number: '4201320111111010', outcome: 'Paid' },
-  { network: 'Visa',       number: '4111114005765430', outcome: 'Paid (3DS)' },
-  { network: 'Mastercard', number: '5421080101000000', outcome: 'Paid' },
-  { network: 'Amex',       number: '340000000900000',  outcome: 'Paid' },
+  { network: 'Mada',       number: '4201320111111010', outcome: 'Paid',                   group: 'success' },
+  { network: 'Visa',       number: '4111114005765430', outcome: 'Paid (3DS frictionless)', group: 'success' },
+  { network: 'Visa',       number: '4111111111111111', outcome: 'Paid (no 3DS)',            group: 'success' },
+  { network: 'Mastercard', number: '5421080101000000', outcome: 'Paid',                   group: 'success' },
+  { network: 'Amex',       number: '340000000900000',  outcome: 'Paid',                   group: 'success' },
+  { network: 'Visa',       number: '4111118250252531', outcome: '3DS unavailable',         group: '3ds' },
+  { network: 'Visa',       number: '4111115784228433', outcome: '3DS auth rejected',       group: '3ds' },
+  { network: 'Mada',       number: '4201320000013020', outcome: 'Unspecified failure',     group: 'failure' },
+  { network: 'Mada',       number: '4201320000311101', outcome: 'Insufficient funds',      group: 'failure' },
+  { network: 'Visa',       number: '4123120001090000', outcome: 'Insufficient funds',      group: 'failure' },
+  { network: 'Visa',       number: '4123120001090109', outcome: 'Declined',               group: 'failure' },
+  { network: 'Mastercard', number: '5105105105105100', outcome: 'Unspecified failure',     group: 'failure' },
 ];
