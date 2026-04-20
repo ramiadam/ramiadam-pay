@@ -24,7 +24,7 @@ function buildCode(amount, description, metadata) {
   publishable_api_key: 'pk_test_...',
   amount: ${amount},
   currency: 'SAR',
-  description: '${description}',
+  description: '${description.replace(/'/g, "\\'")}',
   methods: ['creditcard'],
   supported_networks: ['mada', 'visa', 'mastercard', 'amex'],${metaLines}
 });
