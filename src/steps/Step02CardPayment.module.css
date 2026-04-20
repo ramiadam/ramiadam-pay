@@ -1,43 +1,23 @@
-.testCards {
+/* src/steps/Step02CardPayment.module.css */
+.conceptBox {
   background: var(--muted-bg);
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
   padding: 12px 14px;
 }
 
-.testCardsTitle {
+.conceptTitle {
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-
-.testCardTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.testCardTable th {
-  text-align: left;
-  color: var(--text-muted);
   font-weight: 600;
-  padding: 4px 8px 6px 0;
-  border-bottom: 1px solid var(--line);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
 }
 
-.testCardTable td {
-  padding: 5px 8px 5px 0;
-  color: var(--text);
-}
-
-.testCardTable td:nth-child(2) {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  letter-spacing: 0.04em;
-}
-
-.outcome {
-  color: #86efac;
-  font-size: 11px;
+.conceptText {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
 }
