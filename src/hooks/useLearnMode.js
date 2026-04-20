@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { stepModeKey } from '../utils/constants.js';
 
 export function useLearnMode(stepIndex) {
-  const key = `rtb_step_${stepIndex}_mode`;
+  const key = stepModeKey(stepIndex);
   const [mode, setModeState] = useState(() => localStorage.getItem(key) ?? 'learn');
 
-  function setMode(m) {
+  const setMode = useCallback((m) => {
     setModeState(m);
     localStorage.setItem(key, m);
-  }
+  }, [key]);
 
   return { mode, setMode };
 }

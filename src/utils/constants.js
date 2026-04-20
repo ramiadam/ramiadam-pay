@@ -7,6 +7,10 @@ export const K = {
   theme: 'rtb_theme_v1',
 };
 
+export function stepModeKey(stepIndex) {
+  return `rtb_step_${stepIndex}_mode`;
+}
+
 export const SK_KEY = 'moyasar_sk';
 export const MOYASAR_API = 'https://api.moyasar.com/v1';
 
