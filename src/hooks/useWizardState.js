@@ -13,10 +13,9 @@ export function useWizardState() {
 
   function canGoTo(n) {
     if (n < 0 || n >= totalSteps) return false;
-    if (n === 0) return true;
-    // Can go to next step after the last completed one
-    const maxCompleted = completedSteps.size > 0 ? Math.max(...completedSteps) : 0;
-    return n <= maxCompleted + 1;
+    if (n <= 1) return true;
+    // Steps 2–8 require API Keys (step 1) to be complete
+    return completedSteps.has(1);
   }
 
   const completeStep = useCallback((stepIndex) => {
