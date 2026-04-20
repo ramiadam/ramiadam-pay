@@ -1,11 +1,35 @@
+/* src/steps/Step04AuthorizeOnly.module.css */
+.conceptBox {
+  background: var(--muted-bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+}
+
+.conceptTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.conceptText {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
 .authBadge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(79, 142, 247, 0.1);
-  border: 1px solid rgba(79, 142, 247, 0.3);
-  border-radius: 999px;
-  padding: 5px 12px;
+  background: var(--muted-bg);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 4px 10px;
   font-size: 12px;
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
   color: var(--accent);
 }
