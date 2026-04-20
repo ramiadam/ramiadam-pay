@@ -56,16 +56,16 @@ export function buildMoyasarConfig(cfg, callbackUrl) {
       save_card: globalSaveCard,
       manual: cfg.manual,
     },
-    apple_pay: {
+    applepay: {
       country: cfg.apple_pay?.country ?? 'SA',
       label: cfg.apple_pay?.label ?? 'My Store',
-      validate_merchant_url: cfg.apple_pay?.validate_merchant_url ?? DEFAULT_VALIDATE_URL,
+      merchant_validation_url: cfg.apple_pay?.merchant_validation_url ?? DEFAULT_VALIDATE_URL,
       manual: cfg.apple_pay?.manual ?? cfg.manual,
       save_card: globalSaveCard,
     },
-    samsung_pay: {
+    samsungpay: {
       country: 'SA',
-      label: cfg.apple_pay?.label ?? 'My Store',
+      label: 'My Store',
     },
     metadata: cfg.metadata ?? {},
     language: 'en',
