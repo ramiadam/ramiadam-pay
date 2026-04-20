@@ -1,16 +1,23 @@
-.comingSoon {
-  text-align: center;
-  padding: 24px 0;
-  color: var(--text-muted);
-  font-size: 14px;
+/* src/steps/Step06SamsungPay.module.css */
+.conceptBox {
+  background: var(--muted-bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
 }
 
-.badge {
-  display: inline-block;
-  background: var(--muted-bg);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 14px;
-  font-size: 12px;
-  margin-bottom: 12px;
+.conceptTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.conceptText {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
 }
