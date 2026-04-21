@@ -125,6 +125,7 @@ export function Step02CardPayment({ config, updateConfig, secretKey, setResult, 
           onCompleted={handleCompleted}
           onFailure={(e) => setError(e)}
           formKey={String(formKey)}
+          stepIndex={2}
         />
       )}
 

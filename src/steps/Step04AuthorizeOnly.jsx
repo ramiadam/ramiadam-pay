@@ -108,6 +108,7 @@ export function Step04AuthorizeOnly({ config, updateConfig, secretKey, setResult
           onCompleted={handleCompleted}
           onFailure={(e) => setError(e)}
           formKey={String(formKey)}
+          stepIndex={4}
         />
       )}
 

@@ -1,13 +1,31 @@
 import { useState, useCallback } from 'react';
-import { WIZARD_STEPS } from '../utils/constants.js';
+import { WIZARD_STEPS, K } from '../utils/constants.js';
+
+// Read and consume the 3DS return-step once at module load.
+// Stored by PaymentFormMount before Moyasar.init, consumed here on page reload.
+function consumeReturnStep() {
+  const raw = localStorage.getItem(K.returnStep);
+  if (!raw) return null;
+  localStorage.removeItem(K.returnStep);
+  const n = parseInt(raw, 10);
+  return (!isNaN(n) && n >= 1 && n < WIZARD_STEPS.length) ? n : null;
+}
+const RETURN_STEP = consumeReturnStep();
 
 /**
  * Wizard navigation state.
- * completedSteps is a Set — not persisted (intentional: wizard resets on refresh).
+ * On a 3DS redirect return, restores currentStep + completedSteps from localStorage.
  */
 export function useWizardState() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState(new Set([0]));
+  const [currentStep, setCurrentStep] = useState(RETURN_STEP ?? 0);
+  const [completedSteps, setCompletedSteps] = useState(() => {
+    if (RETURN_STEP != null) {
+      const s = new Set();
+      for (let i = 0; i <= RETURN_STEP; i++) s.add(i);
+      return s;
+    }
+    return new Set([0]);
+  });
 
   const totalSteps = WIZARD_STEPS.length;
 

@@ -160,6 +160,7 @@ export function Step05ApplePay({ config, updateConfig, secretKey, setResult, isL
           onCompleted={handleCompleted}
           onFailure={(e) => setError(e)}
           formKey={String(formKey)}
+          stepIndex={5}
         />
       )}
 

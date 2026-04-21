@@ -105,6 +105,7 @@ export function Step06SamsungPay({ config, updateConfig, secretKey, setResult, i
           onCompleted={handleCompleted}
           onFailure={(e) => setError(e)}
           formKey={String(formKey)}
+          stepIndex={6}
         />
       )}
 

@@ -103,6 +103,7 @@ export function Step07StcPay({ config, updateConfig, secretKey, setResult, isLiv
           onCompleted={handleCompleted}
           onFailure={(e) => setError(e)}
           formKey={String(formKey)}
+          stepIndex={7}
         />
       )}
 
