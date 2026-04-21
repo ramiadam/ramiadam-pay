@@ -5,6 +5,7 @@ export const K = {
   tok: 'moyasar_last_token',
   src: 'moyasar_last_source',
   theme: 'rtb_theme_v1',
+  returnStep: 'moyasar_return_step',
 };
 
 export function stepModeKey(stepIndex) {

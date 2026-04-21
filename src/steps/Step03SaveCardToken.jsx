@@ -140,6 +140,7 @@ export function Step03SaveCardToken({ config, updateConfig, secretKey, result, s
             onCompleted={handleCompleted}
             onFailure={setError1}
             formKey={String(formKey)}
+            stepIndex={3}
           />
         )}
 

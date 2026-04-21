@@ -3,28 +3,131 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Payment Return</title>
+    <title>Payment Return — RTB</title>
     <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; }
-      pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow: auto; }
+      :root {
+        --bg: #0f1117;
+        --surface: #1c1f2b;
+        --border: rgba(255,255,255,0.08);
+        --text: #e4e7f0;
+        --text-muted: #8b8fa8;
+        --accent: #4f7cff;
+        --success: #22c55e;
+        --failure: #f87171;
+        --radius: 12px;
+      }
+      [data-theme="light"] {
+        --bg: #f5f7fa;
+        --surface: #ffffff;
+        --border: rgba(0,0,0,0.09);
+        --text: #1a1d2e;
+        --text-muted: #6b7280;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 32px 28px;
+        max-width: 440px;
+        width: 100%;
+      }
+      .icon {
+        font-size: 2rem;
+        margin-bottom: 14px;
+        line-height: 1;
+      }
+      h2 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .sub {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        margin-bottom: 20px;
+      }
+      pre {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 0.8rem;
+        overflow: auto;
+        color: var(--text);
+        margin-bottom: 20px;
+        font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+      }
+      .progress {
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+      .bar {
+        height: 100%;
+        background: var(--accent);
+        width: 0%;
+        transition: width 2s linear;
+      }
+      .hint {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        text-align: center;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
     </style>
   </head>
   <body>
-    <h2>Returned from Moyasar</h2>
-    <pre id="out"></pre>
+    <div class="card">
+      <div class="icon" id="icon">⏳</div>
+      <h2 id="title">Processing return…</h2>
+      <p class="sub" id="sub">Returning to the wizard.</p>
+      <pre id="out"></pre>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <p class="hint">Redirecting in 2 seconds — <a href="/">return now</a></p>
+    </div>
 
     <script>
-      const params = new URLSearchParams(window.location.search);
-      const obj = {
-        id: params.get('id'),
-        status: params.get('status'),
-        message: params.get('message'),
-      };
-      // Use textContent — never innerHTML — for untrusted values
-      document.getElementById('out').textContent = JSON.stringify(obj, null, 2);
+      // Match the app's persisted theme
+      const theme = localStorage.getItem('rtb_theme_v1') ?? 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
 
-      // Next step: call your backend to fetch and verify this payment by id.
-      // Moyasar recommends verifying status/amount/currency before fulfilling.
+      const params = new URLSearchParams(window.location.search);
+      const id     = params.get('id');
+      const status = params.get('status');
+      const msg    = params.get('message');
+
+      // Save payment ID so the wizard's usePaymentResult picks it up on reload
+      if (id) localStorage.setItem('moyasar_last_payment_id', id);
+
+      // Display result (textContent — never innerHTML — for untrusted values)
+      document.getElementById('out').textContent = JSON.stringify({ id, status, message: msg }, null, 2);
+
+      const isPaid = status === 'paid';
+      document.getElementById('icon').textContent  = isPaid ? '✓' : '✗';
+      document.getElementById('title').textContent = isPaid ? 'Payment approved' : 'Payment returned';
+      document.getElementById('sub').textContent   = isPaid
+        ? 'Your test payment was approved. Returning to wizard…'
+        : 'Returning to wizard…';
+
+      // Animate progress bar then redirect
+      requestAnimationFrame(() => {
+        document.getElementById('bar').style.width = '100%';
+      });
+      setTimeout(() => { window.location.href = '/'; }, 2000);
     </script>
   </body>
 </html>

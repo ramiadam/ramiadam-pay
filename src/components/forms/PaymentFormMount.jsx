@@ -1,8 +1,9 @@
 import { useRef, useEffect, useId } from 'react';
 import styles from './PaymentFormMount.module.css';
 import { buildMoyasarConfig } from '../../utils/moyasarHelpers.js';
+import { K } from '../../utils/constants.js';
 
-export function PaymentFormMount({ cfg, onCompleted, onFailure, formKey = '0' }) {
+export function PaymentFormMount({ cfg, onCompleted, onFailure, formKey = '0', stepIndex }) {
   const mountRef = useRef(null);
   const instanceId = useId().replace(/:/g, '');
   const elementId = `moyasar-form-${instanceId}`;
@@ -20,6 +21,9 @@ export function PaymentFormMount({ cfg, onCompleted, onFailure, formKey = '0' })
     if (!cfg.methods?.length) return;
 
     let active = true;  // guard against stale listeners from prior mounts
+
+    // Save the step index so thanks.html can redirect back here after a 3DS redirect
+    if (stepIndex != null) localStorage.setItem(K.returnStep, String(stepIndex));
 
     const callbackUrl = new URL('/thanks.html', window.location.href).toString();
     const moyasarCfg = { ...buildMoyasarConfig(cfg, callbackUrl), element: el };
