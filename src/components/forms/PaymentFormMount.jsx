@@ -38,7 +38,26 @@ export function PaymentFormMount({ cfg, onCompleted, onFailure, formKey = '0', s
       onFailure?.({ error: `Moyasar.init error: ${e?.message ?? String(e)}` });
     }
 
-    return () => { active = false; };  // marks this mount's listeners as stale
+    // Force theme colors on MPF's plain-DOM inputs (name field).
+    // CSS can't reliably beat MPF's own injected styles, so we set inline styles directly.
+    const applyTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme') ?? 'dark';
+      const color  = theme === 'dark' ? '#e6eaf0' : '#0b1220';
+      const bg     = theme === 'dark' ? '#1e2130' : '#f7f9fc';
+      el.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach((input) => {
+        input.style.setProperty('color', color, 'important');
+        input.style.setProperty('-webkit-text-fill-color', color, 'important');
+        input.style.setProperty('background-color', bg, 'important');
+      });
+    };
+    // MPF renders synchronously but may paint on next tick
+    applyTheme();
+    const themeTimer = setTimeout(applyTheme, 50);
+
+    return () => {
+      active = false;
+      clearTimeout(themeTimer);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formKey]);
 
