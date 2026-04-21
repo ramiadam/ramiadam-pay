@@ -32,7 +32,7 @@ export function Step07StcPay({ config, updateConfig, secretKey, setResult, isLiv
   const [localMetadata, setLocalMetadata] = useState(config.metadata ?? DEFAULT_METADATA);
   const [payment, setPayment] = useState(null);
   const [error, setError] = useState(null);
-  const [formMounted, setFormMounted] = useState(false);
+  const [formMounted, setFormMounted] = useState(true);
   const [formKey, setFormKey] = useState(1);
 
   const localCfg = {
