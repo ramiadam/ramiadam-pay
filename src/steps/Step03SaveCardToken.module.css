@@ -1,4 +1,4 @@
-/* src/steps/Step04AuthorizeOnly.module.css */
+/* src/steps/Step03SaveCardToken.module.css */
 .conceptBox {
   background: var(--muted-bg);
   border-left: 3px solid var(--accent);
@@ -22,14 +22,33 @@
   margin: 0;
 }
 
-.authBadge {
+.phase {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--muted-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.phaseLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tokenChip {
   display: inline-flex;
   align-items: center;
-  background: var(--muted-bg);
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  padding: 4px 10px;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid rgba(22, 163, 74, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
   font-size: 12px;
   font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
-  color: var(--accent);
+  color: #86efac;
 }

@@ -1,10 +1,17 @@
 import styles from './Topbar.module.css';
 
-export function Topbar({ theme, onToggleTheme }) {
+export function Topbar({ theme, onToggleTheme, isLive = false }) {
   return (
     <header className={styles.topbar}>
-      <div>
-        <div className={styles.brand}>RTB</div>
+      <div className={styles.brandGroup}>
+        <div className={styles.brand}>
+          RTB
+          {isLive && (
+            <span className={styles.liveBadge} aria-label="Live mode active">
+              ● LIVE
+            </span>
+          )}
+        </div>
         <div className={styles.sub}>Moyasar Payments Wizard</div>
       </div>
       <div className={styles.right}>

@@ -1,4 +1,4 @@
-/* src/steps/Step07StcPay.module.css */
+/* src/steps/Step05ApplePay.module.css */
 .conceptBox {
   background: var(--muted-bg);
   border-left: 3px solid var(--accent);
@@ -20,4 +20,19 @@
   color: var(--text-muted);
   line-height: 1.6;
   margin: 0;
+}
+
+.availability {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.skipNote {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--muted-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
 }
