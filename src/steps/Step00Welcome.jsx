@@ -3,9 +3,9 @@ import styles from './Step00Welcome.module.css';
 const FLOW_STEPS = [
   'Enter API Keys',
   'Card Payment',
-  'Apple Pay',
-  'Authorize & Capture',
   'Save Card + Token Pay',
+  'Authorize + Capture',
+  'Apple Pay',
   'Samsung Pay',
   'STC Pay',
 ];
