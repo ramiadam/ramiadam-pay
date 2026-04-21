@@ -9,54 +9,78 @@
   gap: 0 !important;
 }
 
+/*
+ * MPF mounts inside div[id^="moyasar-form-"] (set in PaymentFormMount.jsx).
+ * We target that container plus MPF's own class names as fallbacks.
+ * The name-on-card field is a plain DOM input (not an iframe) — it must be
+ * styled explicitly since MPF's own CSS sets a light-mode text color.
+ */
+
 /* ---- Dark theme ---- */
+[data-theme="dark"] [id^="moyasar-form-"] input,
+[data-theme="dark"] [id^="moyasar-form-"] select,
+[data-theme="dark"] [id^="moyasar-form-"] textarea,
 [data-theme="dark"] .mysr-form input,
 [data-theme="dark"] .mysr-form select,
-[data-theme="dark"] .mysr-form textarea {
-  background: #1e2130 !important;
+[data-theme="dark"] .moyasar-form input,
+[data-theme="dark"] .moyasar-form select {
+  background-color: #1e2130 !important;
   color: #e6eaf0 !important;
   -webkit-text-fill-color: #e6eaf0 !important;
   border-color: #2e3450 !important;
+  caret-color: #e6eaf0 !important;
 }
 
+[data-theme="dark"] [id^="moyasar-form-"] input::placeholder,
+[data-theme="dark"] [id^="moyasar-form-"] textarea::placeholder,
 [data-theme="dark"] .mysr-form input::placeholder,
-[data-theme="dark"] .mysr-form textarea::placeholder {
+[data-theme="dark"] .moyasar-form input::placeholder {
   color: #6b7090 !important;
   -webkit-text-fill-color: #6b7090 !important;
+  opacity: 1 !important;
 }
 
+[data-theme="dark"] [id^="moyasar-form-"] label,
 [data-theme="dark"] .mysr-form label,
-[data-theme="dark"] .mysr-form .mysr-label {
+[data-theme="dark"] .moyasar-form label {
   color: #a0a6c0 !important;
 }
 
-/* Autofill background override (browsers override bg/color on autofill) */
+[data-theme="dark"] [id^="moyasar-form-"] input:-webkit-autofill,
+[data-theme="dark"] [id^="moyasar-form-"] input:-webkit-autofill:focus,
 [data-theme="dark"] .mysr-form input:-webkit-autofill,
-[data-theme="dark"] .mysr-form input:-webkit-autofill:hover,
-[data-theme="dark"] .mysr-form input:-webkit-autofill:focus {
+[data-theme="dark"] .moyasar-form input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px #1e2130 inset !important;
   -webkit-text-fill-color: #e6eaf0 !important;
 }
 
 /* ---- Light theme ---- */
+[data-theme="light"] [id^="moyasar-form-"] input,
+[data-theme="light"] [id^="moyasar-form-"] select,
+[data-theme="light"] [id^="moyasar-form-"] textarea,
 [data-theme="light"] .mysr-form input,
 [data-theme="light"] .mysr-form select,
-[data-theme="light"] .mysr-form textarea {
-  background: #f7f9fc !important;
+[data-theme="light"] .moyasar-form input,
+[data-theme="light"] .moyasar-form select {
+  background-color: #f7f9fc !important;
   color: #0b1220 !important;
   -webkit-text-fill-color: #0b1220 !important;
   border-color: #d0d7e6 !important;
+  caret-color: #0b1220 !important;
 }
 
+[data-theme="light"] [id^="moyasar-form-"] input::placeholder,
 [data-theme="light"] .mysr-form input::placeholder,
-[data-theme="light"] .mysr-form textarea::placeholder {
+[data-theme="light"] .moyasar-form input::placeholder {
   color: #9098b0 !important;
   -webkit-text-fill-color: #9098b0 !important;
+  opacity: 1 !important;
 }
 
+[data-theme="light"] [id^="moyasar-form-"] input:-webkit-autofill,
+[data-theme="light"] [id^="moyasar-form-"] input:-webkit-autofill:focus,
 [data-theme="light"] .mysr-form input:-webkit-autofill,
-[data-theme="light"] .mysr-form input:-webkit-autofill:hover,
-[data-theme="light"] .mysr-form input:-webkit-autofill:focus {
+[data-theme="light"] .moyasar-form input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px #f7f9fc inset !important;
   -webkit-text-fill-color: #0b1220 !important;
 }
