@@ -19,18 +19,22 @@ export function PaymentFormMount({ cfg, onCompleted, onFailure, formKey = '0' })
     if (!cfg.publishable_key?.startsWith('pk_')) return;
     if (!cfg.methods?.length) return;
 
+    let active = true;  // guard against stale listeners from prior mounts
+
     const callbackUrl = new URL('/thanks.html', window.location.href).toString();
     const moyasarCfg = { ...buildMoyasarConfig(cfg, callbackUrl), element: el };
 
     try {
       Moyasar.init(moyasarCfg);
       if (typeof Moyasar.on === 'function') {
-        Moyasar.on('completed', (payment) => { onCompleted?.(payment); });
-        Moyasar.on('failure', (error) => { onFailure?.(error); });
+        Moyasar.on('completed', (payment) => { if (active) onCompleted?.(payment); });
+        Moyasar.on('failure', (error) => { if (active) onFailure?.(error); });
       }
     } catch (e) {
       onFailure?.({ error: `Moyasar.init error: ${e?.message ?? String(e)}` });
     }
+
+    return () => { active = false; };  // marks this mount's listeners as stale
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formKey]);
 
