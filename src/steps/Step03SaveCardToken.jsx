@@ -1,5 +1,5 @@
 // src/steps/Step03SaveCardToken.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StepCard } from '../components/ui/StepCard.jsx';
 import { Annotation } from '../components/ui/Annotation.jsx';
 import { PaymentFormMount } from '../components/forms/PaymentFormMount.jsx';
@@ -10,6 +10,7 @@ import { CopyableValue } from '../components/ui/CopyableValue.jsx';
 import { CodeSnippet } from '../components/ui/CodeSnippet.jsx';
 import { useAdminCall } from '../hooks/useAdminCall.js';
 import { useLearnMode } from '../hooks/useLearnMode.js';
+import { MOYASAR_API } from '../utils/constants.js';
 import styles from './Step03SaveCardToken.module.css';
 
 const DEFAULT_METADATA = { order_id: 'ord_002', scenario: 'save-card' };
@@ -54,6 +55,18 @@ export function Step03SaveCardToken({ config, updateConfig, secretKey, result, s
   const [tokenPayDesc, setTokenPayDesc] = useState('Token payment from wizard');
   const [use3ds, setUse3ds] = useState(true);
   const { call: tokenCall, output: tokenOutput, loading: tokenLoading } = useAdminCall(secretKey);
+
+  // After a 3DS redirect we have result.pid but no token — fetch the full payment to hydrate it
+  useEffect(() => {
+    if (!result?.pid || result?.tok || !secretKey) return;
+    fetch(`${MOYASAR_API}/payments/${result.pid}`, {
+      headers: { Authorization: `Basic ${btoa(secretKey + ':')}` },
+    })
+      .then((r) => r.json())
+      .then((p) => { if (p?.source?.token) setResult(p); })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const savedToken = payment?.source?.token ?? result?.tok ?? null;
 
