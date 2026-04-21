@@ -23,7 +23,7 @@ const AUTH_CODE = `Moyasar.init({
 // Capture: POST https://api.moyasar.com/v1/payments/{id}/capture
 // Void:    POST https://api.moyasar.com/v1/payments/{id}/void`;
 
-export function Step04AuthorizeOnly({ config, updateConfig, secretKey, setResult, isLive, onComplete }) {
+export function Step04AuthorizeOnly({ config, updateConfig, secretKey, result, setResult, isLive, onComplete }) {
   const { mode, setMode } = useLearnMode(4);
   const isLearn = mode === 'learn';
 
@@ -114,12 +114,14 @@ export function Step04AuthorizeOnly({ config, updateConfig, secretKey, setResult
 
       {error && <JsonDisplay data={error} label="Payment failure" />}
 
-      {payment && (
+      {(payment?.id ?? result?.pid) && (
         <>
-          <JsonDisplay data={payment} label="Authorization result (status: 'authorized')" />
+          {payment && (
+            <JsonDisplay data={payment} label="Authorization result (status: 'authorized')" />
+          )}
           <PostPaymentActions
-            paymentId={payment.id}
-            amount={payment.amount ?? localAmount}
+            paymentId={payment?.id ?? result?.pid}
+            amount={payment?.amount ?? localAmount}
             secretKey={secretKey}
             showCapture
           />

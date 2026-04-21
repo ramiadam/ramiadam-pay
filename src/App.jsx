@@ -93,6 +93,7 @@ export default function App() {
         {wizard.currentStep === 4 && (
           <Step04AuthorizeOnly
             {...paymentStepProps}
+            result={result}
             onComplete={makeCompleteStep(4)}
           />
         )}
