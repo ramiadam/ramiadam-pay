@@ -34,7 +34,7 @@ export function Step06SamsungPay({ config, updateConfig, secretKey, setResult, i
   const [localMetadata, setLocalMetadata] = useState(config.metadata ?? DEFAULT_METADATA);
   const [payment, setPayment] = useState(null);
   const [error, setError] = useState(null);
-  const [formMounted, setFormMounted] = useState(false);
+  const [formMounted, setFormMounted] = useState(true);
   const [formKey, setFormKey] = useState(1);
 
   const localCfg = {
