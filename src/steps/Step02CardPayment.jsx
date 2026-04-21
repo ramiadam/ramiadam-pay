@@ -32,7 +32,7 @@ Moyasar.on('completed', (payment) => { /* handle success */ });
 Moyasar.on('failure', (error) => { /* handle failure */ });`;
 }
 
-export function Step02CardPayment({ config, updateConfig, secretKey, setResult, isLive, onComplete }) {
+export function Step02CardPayment({ config, updateConfig, secretKey, result, setResult, isLive, onComplete }) {
   const { mode, setMode } = useLearnMode(2);
   const isLearn = mode === 'learn';
 
@@ -138,13 +138,15 @@ export function Step02CardPayment({ config, updateConfig, secretKey, setResult, 
 
       {error && <JsonDisplay data={error} label="Payment failure" />}
 
-      {payment && (
+      {(payment?.id ?? result?.pid) && (
         <>
-          <JsonDisplay data={payment} label="Payment completed — Moyasar.on('completed') callback" />
+          {payment && (
+            <JsonDisplay data={payment} label="Payment completed — Moyasar.on('completed') callback" />
+          )}
           <PostPaymentActions
-            paymentId={payment.id}
-            token={payment?.source?.token}
-            amount={payment.amount ?? localAmount}
+            paymentId={payment?.id ?? result?.pid}
+            token={payment?.source?.token ?? result?.tok}
+            amount={payment?.amount ?? localAmount}
             secretKey={secretKey}
           />
           {isLearn && (
