@@ -51,7 +51,7 @@ export function Step05ApplePay({ config, updateConfig, secretKey, setResult, isL
   const [localMetadata, setLocalMetadata] = useState(config.metadata ?? DEFAULT_METADATA);
   const [payment, setPayment] = useState(null);
   const [error, setError] = useState(null);
-  const [formMounted, setFormMounted] = useState(true);
+  const [formMounted, setFormMounted] = useState(applePayAvailable);
   const [formKey, setFormKey] = useState(1);
 
   const localCfg = {
