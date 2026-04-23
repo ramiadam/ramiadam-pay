@@ -12,8 +12,8 @@ export function Step01ApiKeys({ config, updateConfig, secretKey, setSecretKey, o
 
   const pkLive = isLiveKey(pkInput);
   const skLive = isLiveKey(skInput);
-  const pkValid = isValidPublishableKey(pkInput) && !pkLive;
-  const skValid = isValidSecretKey(skInput) && !skLive;
+  const pkValid = isValidPublishableKey(pkInput);
+  const skValid = isValidSecretKey(skInput);
 
   function handleSave() {
     setSubmitted(true);
@@ -25,16 +25,16 @@ export function Step01ApiKeys({ config, updateConfig, secretKey, setSecretKey, o
 
   function pkStatus() {
     if (!pkInput) return null;
-    if (pkLive) return <span className={styles.err}>Live key — use pk_test_... only</span>;
+    if (pkLive) return <span className={styles.warn}>Live key — real payments will be charged</span>;
     if (pkValid) return <span className={styles.ok}>Valid test key</span>;
-    return <span className={styles.warn}>Should start with pk_test_...</span>;
+    return <span className={styles.warn}>Should start with pk_test_... or pk_live_...</span>;
   }
 
   function skStatus() {
     if (!skInput) return null;
-    if (skLive) return <span className={styles.err}>Live key — use sk_test_... only</span>;
+    if (skLive) return <span className={styles.warn}>Live key — real operations will execute</span>;
     if (skValid) return <span className={styles.ok}>Valid test key ({redactKey(skInput)})</span>;
-    return <span className={styles.warn}>Should start with sk_test_...</span>;
+    return <span className={styles.warn}>Should start with sk_test_... or sk_live_...</span>;
   }
 
   return (
@@ -44,10 +44,10 @@ export function Step01ApiKeys({ config, updateConfig, secretKey, setSecretKey, o
       concept="Every Moyasar integration needs a publishable key for client-side payment forms and a secret key for server-side admin operations. In this test bench, both stay in your browser — the publishable key in localStorage, the secret key in sessionStorage (cleared when you close the tab)."
     >
       <Annotation>
-        Get your test keys from the{' '}
+        Get your keys from the{' '}
         <strong>Moyasar Dashboard → Developers → API Keys</strong>. Use{' '}
-        <code>pk_test_...</code> and <code>sk_test_...</code> keys only — never live keys.
-        The secret key is optional here but required to run Fetch, Refund, Capture and Void.
+        <code>pk_test_...</code> / <code>sk_test_...</code> for testing, or live keys to run
+        real transactions. The secret key is optional but required for Fetch, Refund, Capture and Void.
       </Annotation>
 
       {(pkLive || skLive) && <LiveKeyWarning context="Payment form and admin operations" />}
@@ -97,9 +97,8 @@ export function Step01ApiKeys({ config, updateConfig, secretKey, setSecretKey, o
         type="button"
         className="btn primary"
         onClick={handleSave}
-        disabled={pkLive || skLive}
       >
-        Save Keys and Continue
+        {pkLive || skLive ? 'Continue with Live Keys' : 'Save Keys and Continue'}
       </button>
     </StepCard>
   );

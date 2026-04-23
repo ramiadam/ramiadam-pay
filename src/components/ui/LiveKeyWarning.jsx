@@ -1,13 +1,12 @@
 import styles from './LiveKeyWarning.module.css';
 
-export function LiveKeyWarning({ context = 'admin operations' }) {
+export function LiveKeyWarning() {
   return (
     <div className={styles.banner} role="alert">
       <span className={styles.icon} aria-hidden="true">!</span>
       <div>
-        <strong>Live key detected.</strong> This test bench is for test keys only
-        (<code>pk_test_...</code> / <code>sk_test_...</code>). {context} are
-        disabled. Remove the live key and enter a test key to continue.
+        <strong>Live key detected.</strong> Real payments will be charged and real operations
+        will execute. Switch to <code>pk_test_...</code> / <code>sk_test_...</code> for safe testing.
       </div>
     </div>
   );
